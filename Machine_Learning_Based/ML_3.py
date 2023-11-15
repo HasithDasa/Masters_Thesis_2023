@@ -254,7 +254,7 @@ print("fourier_features size:", np.size(fourier_features_transitional))
 
 # Assuming 'thermal_transitional' is the image array you want to process
 image_with_patch, patch_coords = draw_rectangle_on_patch(thermal_transitional)
-# Display the image with the patch
+# Display the image with the patch and relavent
 cv2.imshow('Patch on Image', image_with_patch)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
