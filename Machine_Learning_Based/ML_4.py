@@ -131,7 +131,7 @@ feature_columns = [f'Feature_{i+1}' for i in range(all_features.shape[1])]
 df = pd.DataFrame(all_features, columns=feature_columns)
 df['Label'] = all_labels
 
-# Assuming 'df' is your DataFrame
+# Assuming 'df' is your DataFram
 save_path = 'D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated lbp/features.csv'
 
 # Save the DataFrame as a CSV file
