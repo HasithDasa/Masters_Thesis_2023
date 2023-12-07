@@ -33,9 +33,8 @@ My prefered structure is that parameters
 params = {
     "canny_min_length"  :  5, 
     "folder_path"       : r"D:\Academic\MSc\Thesis\Project files\Project Complete\data\new data\npy",
-    "file_name"         : "irdata_0001_0022",
+    "file_name"         : "irdata_0001_0005",
     "type"              : ".npy",
-    # "folder_path"       : r"C:\Users\jdi\Documents\Seafile\KleineDaten",
     "min_arc_length"    : 100,
     "noise_std"         : 0, 
     "data_date"         : "231508",
@@ -74,6 +73,9 @@ def save_image(img, params=params):
         print("Loading Error !")
         exit()
 
+    saving_location_np =  os.path.join(params['folder_path_save'], params['file_name'])
+    np.save(saving_location_np, img)
+
     # Get the minimum and maximum values of the image
     min_val = np.min(img)
     max_val = np.max(img)
@@ -91,10 +93,6 @@ def save_image(img, params=params):
     com_file_name_sav = params['file_name'] + params['type_save']
     saving_location = os.path.join(params['folder_path_save'], com_file_name_sav)
     cv2.imwrite(saving_location, uint8_image)
-
-    saving_location_np =  os.path.join(params['folder_path_save'], params['file_name'])
-    np.save(saving_location_np, img)
-
 
 
 def add_noise(img, params=params):
@@ -163,11 +161,11 @@ def assign_edges(edges):
     return le, te, np.rad2deg(angle) 
 
 def find_edges(img):
-  
+
     contours = find_contours(img)
     # print("We have found {} contours in the derotated".format(len(contours)))
     # plot_np_image_with_contours(img, contours)
-    
+
     ## The next part is only for formatting contours as a readable numpy array
     edges = np.zeros((len(contours), img.shape[1]))
     for k, edge in enumerate(contours):
@@ -177,7 +175,7 @@ def find_edges(img):
         _, imp_indice = np.unique(edge[:, 0], return_index =True)
         edge = edge[imp_indice] # consits of unique edge coordinates
 
-        
+
         width = img.shape[1] - 1
         if edge[-1, 0] != width: #last value
             y = edge[-1, 1]
@@ -186,12 +184,12 @@ def find_edges(img):
             if edge[i,0] != i:
                 edge = np.insert(arr=edge, obj=i, values=[i, edge[i,1]], axis=0)
         edges[k] = edge[:, 1]
-    
-    ## Reduce to two contours 
+
+    ## Reduce to two contours
     con_means = np.array([np.mean(edge) for edge in edges])
     jnb = JenksNaturalBreaks(2) # Asking for 2 clusters
     jnb.fit(con_means)
-    
+
     edge1 = np.stack(edges[con_means>jnb.inner_breaks_])
     edge2 = np.stack(edges[con_means<=jnb.inner_breaks_])
     edge1 = np.mean(edge1, axis = 0)
@@ -200,58 +198,64 @@ def find_edges(img):
     return edges
 
 
-    # ## Reduce to to two contours 
-    # con_means = np.array([np.mean(con[:, 0, 1]) for con in contours])
-    # jnb = JenksNaturalBreaks(2) # Asking for 4 clusters
-    # jnb.fit(con_means)
- 
+    ## Reduce to to two contours
+    con_means = np.array([np.mean(con[:, 0, 1]) for con in contours])
+    jnb = JenksNaturalBreaks(2) # Asking for 4 clusters
+    jnb.fit(con_means)
+
+
     
 def remove_background(img, hist, bin_edges):
     # This removes the background. The function is derived from looking at the histogramm.
-    # It assumes that in the histogram there are two bubbles. One from the background and one from the content. 
+    # It assumes that in the histogram there are two bubbles. One from the background and one from the content.
     # It is important to note that I want to drastically remove, because I rather have the edges cut a little stricter.
     # This makes my algorithms more robust, because there are not artefacts from the edges
-    
+
     # Example: 000012345433000014567123400000 should be cut in a way that only the second hill between 4 and 4 stays
-    
-    
+
+
     threshold = img.shape[0] * img.shape[1] / hist.shape[0] / 3
-    
+
     # First removal of bad stuff
     hist[hist < threshold] = 0
     for i in np.arange(2, hist.shape[0]-2):
         if np.any(hist[i-2:i] == 0) and np.any(hist[i+1:i+2+1] == 0):
             hist[i] = 0
-            
+
     # Find interesting part
     # Assumption: interesting part is warmer
-    # look where interesting starts 
-    i = hist.shape[0] - 20 
+    # look where interesting starts
+    i = hist.shape[0] - 20
     while np.all(hist[i:i+20] < threshold * 6):
-        i -= 1    
+        i -= 1
     hist[i+1:] = 0
-    
+
     # look how long interesting part goes
     while np.any(hist[i-19: i+1] != 0):
         i-= 1
-    
+
     # cut the edge a little tighter
     while hist[i] < threshold:
         i += 1
-             
+
     hist[:i] = 0
-    
+
     lower_lim = bin_edges[np.min(np.nonzero(hist))]
+    print("lower_lim", lower_lim)
     upper_lim = bin_edges[np.max(np.nonzero(hist))+1]
     # img[(img<lower_lim) | (img>upper_lim)] = 0
     img[(img<lower_lim)] = 0
     img[(img>upper_lim)] = upper_lim
-    
+    print("min", np.min(img))
+    print("max", np.max(img))
+
     # plot_np_image(img, title="Background removed")
-    
+
     img = remove_dead_pixels(img)
-    
+
     return img
+
+
 
 def rotate_and_crop(image, angle):
     # Rotate the image
