@@ -3,6 +3,7 @@ from sklearn.model_selection import train_test_split, GridSearchCV, cross_val_sc
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, make_scorer
 from sklearn.utils import resample
+import joblib
 
 
 # Load your dataset
@@ -71,7 +72,7 @@ threshold = 0.01  # Example threshold
 # Select features whose importance is above the threshold
 selected_features = feature_importances[feature_importances['importance'] > threshold]['feature']
 
-#print("selected features", selected_features)
+print("selected features", selected_features)
 
 # Filter the dataset to include only selected features
 X_train_selected = X_train[selected_features]
@@ -80,6 +81,11 @@ X_test_selected = X_test[selected_features]
 # Train a new model using only the selected features
 rf_clf_selected = RandomForestClassifier(n_estimators=300, max_depth=15, min_samples_split=10, random_state=42)
 rf_clf_selected.fit(X_train_selected, y_train)
+
+# Assuming rf_clf_selected is your trained Random Forest model
+model_filename = 'D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated lbp/glcm_rf_classifier.joblib'
+joblib.dump(rf_clf_selected, model_filename)
+
 
 # Cross-validation on the training set
 cv_scores = cross_val_score(rf_clf_selected, X_train_selected, y_train, cv=5)

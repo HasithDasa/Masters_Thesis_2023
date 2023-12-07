@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 
 
 # Load thermal image
-thermal_image = np.load('D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/save_images/irdata_0001_0002.npy')
+thermal_image = np.load('D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/save_images/irdata_0001_0005.npy')
 
 # Load and binarize masks
 def load_and_binarize_mask(path):
@@ -16,9 +16,9 @@ def load_and_binarize_mask(path):
     mask[mask > 0] = 255
     return mask
 
-background_mask = load_and_binarize_mask('D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated lbp/ir_data_0001_0002_annotation-3-by-1-tag-Background-0.png')
-transitional_mask = load_and_binarize_mask('D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated lbp/ir_data_0001_0002_annotation-3-by-1-tag-Transitional-0.png')
-other_mask = load_and_binarize_mask('D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated lbp/ir_data_0001_0002_annotation-3-by-1-tag-Other Regions-0.png')
+# background_mask = load_and_binarize_mask('D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated lbp/ir_data_0001_0002_annotation-3-by-1-tag-Background-0.png')
+transitional_mask = load_and_binarize_mask('D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated lbp/irdata_0001_0005.png')
+# other_mask = load_and_binarize_mask('D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated lbp/ir_data_0001_0002_annotation-3-by-1-tag-Other Regions-0.png')
 
 
 # Apply masks to LBP image
@@ -217,9 +217,9 @@ def convert_to_uint8(image):
 
 
 # Apply masks to original thermal image
-thermal_background = apply_mask(thermal_image, background_mask)
+# thermal_background = apply_mask(thermal_image, background_mask)
 thermal_transitional = apply_mask(thermal_image, transitional_mask)
-thermal_other = apply_mask(thermal_image, other_mask)
+# thermal_other = apply_mask(thermal_image, other_mask)
 
 
 # Calculate and print Haralick textures for the transitional region of the original thermal image
@@ -253,9 +253,10 @@ print("fourier_features size:", np.size(fourier_features_transitional))
 
 
 # Assuming 'thermal_transitional' is the image array you want to process
-image_with_patch, patch_coords = draw_rectangle_on_patch(thermal_background)
+image_with_patch, patch_coords = draw_rectangle_on_patch(thermal_transitional)
 # Display the image with the patch and relavent
 cv2.imshow('Patch on Image', image_with_patch)
+# cv2.imshow('thermal_image', thermal_image)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
 
