@@ -7,18 +7,18 @@ import joblib
 
 
 # Load your dataset
-df_path = 'D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated lbp/features.csv'
+df_path = 'D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated two regions/features_3.csv'
 df = pd.read_csv(df_path)
 print("before", len(df))
 
-# Count the number of ones in each row (excluding the label column)
-ones_count = (df.drop('Label', axis=1) == 1).sum(axis=1)
-
-# Filter out rows where the count of ones is greater than 4
-df = df[ones_count <= 4]
-
-print("after", len(df))
-
+# # Count the number of ones in each row (excluding the label column)
+# ones_count = (df.drop('Label', axis=1) == 1).sum(axis=1)
+#
+# # Filter out rows where the count of ones is greater than 4
+# df = df[ones_count <= 4]
+#
+# print("after", len(df))
+#
 # Count the number of zeros in the 'Label' column
 count_zeros = (df['Label'] == 0).sum()
 
@@ -30,18 +30,18 @@ print(f"Count of Zeros: {count_zeros}")
 print(f"Count of Ones: {count_ones}")
 
 
-# Separate the dataset into two based on the label
-df_zeros = df[df['Label'] == 0]
-df_ones = df[df['Label'] == 1]
-
-# Undersample the majority class
-df_zeros_undersampled = resample(df_zeros,
-                                 replace=False,    # sample without replacement
-                                 n_samples=len(df_ones), # match number in minority class
-                                 random_state=42)  # reproducible results
-
-# Combine the minority class with the downsampled majority class
-df = pd.concat([df_zeros_undersampled, df_ones])
+# # Separate the dataset into two based on the label
+# df_zeros = df[df['Label'] == 0]
+# df_ones = df[df['Label'] == 1]
+#
+# # Undersample the majority class
+# df_zeros_undersampled = resample(df_zeros,
+#                                  replace=False,    # sample without replacement
+#                                  n_samples=len(df_ones), # match number in minority class
+#                                  random_state=42)  # reproducible results
+#
+# # Combine the minority class with the downsampled majority class
+# df = pd.concat([df_zeros_undersampled, df_ones])
 
 # Shuffle the dataset
 df = df.sample(frac=1, random_state=42).reset_index(drop=True)
@@ -54,7 +54,7 @@ y = df['Label']               # Labels
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
 
 # Train a Random Forest Classifier
-rf_clf = RandomForestClassifier(n_estimators=300, max_depth=15, min_samples_split=10, random_state=42)
+rf_clf = RandomForestClassifier(n_estimators=100, max_depth=5, min_samples_split=50, random_state=42)
 rf_clf.fit(X_train, y_train)
 
 # Get feature importances
@@ -67,11 +67,12 @@ feature_importances = pd.DataFrame({'feature': X_train.columns, 'importance': im
 feature_importances = feature_importances.sort_values(by='importance', ascending=False)
 
 # Select a threshold for feature selection
-threshold = 0.01  # Example threshold
+threshold = 0.05  # Example threshold
 
 # Select features whose importance is above the threshold
 selected_features = feature_importances[feature_importances['importance'] > threshold]['feature']
 
+print("feature imp", feature_importances['importance'])
 print("selected features", selected_features)
 
 # Filter the dataset to include only selected features
@@ -79,11 +80,11 @@ X_train_selected = X_train[selected_features]
 X_test_selected = X_test[selected_features]
 
 # Train a new model using only the selected features
-rf_clf_selected = RandomForestClassifier(n_estimators=300, max_depth=15, min_samples_split=10, random_state=42)
+rf_clf_selected = RandomForestClassifier(n_estimators=100, max_depth=5, min_samples_split=50, random_state=42)
 rf_clf_selected.fit(X_train_selected, y_train)
 
 # Assuming rf_clf_selected is your trained Random Forest model
-model_filename = 'D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated lbp/glcm_rf_classifier.joblib'
+model_filename = 'D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated two regions/glcm_rf_classifier_2.joblib'
 joblib.dump(rf_clf_selected, model_filename)
 
 
