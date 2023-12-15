@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 
 # Load the .npy file
 # Replace 'your_file_path.npy' with the path to your .npy file
-thermal_image = np.load('D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/save_images/irdata_0001_0024.npy')
+thermal_image = np.load('D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/save_images/image_with_trans_line/masks/irdata_0001_0001_lami.npy')
 print(np.unique(thermal_image))
 # Find max and min values
 max_value = np.max(thermal_image)

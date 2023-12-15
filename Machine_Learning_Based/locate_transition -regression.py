@@ -244,16 +244,13 @@ def plot_image_and_transition(img, pos, title="Image and Transition"):
     output_dir ="D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/save_images/image_with_trans_line"
 
     file_name = params['file_name']
-    # output_file_name_png = file_name.replace('.npy', '.png')
-    # output_dir_file_name_png = os.path.join(output_dir, output_file_name_png)
+
     output_dir_file_name_npy = os.path.join(output_dir, file_name)
-    # plt.imsave(output_dir_file_name, img_print, cmap='gray')
 
     img_save = img_print
     # Crop the image based on zero values
     cropped_img = crop_image_based_on_zeros(img_save)
 
-    # plt.imsave(output_dir_file_name_png, cropped_img, cmap='gray')
     np.save(output_dir_file_name_npy, cropped_img)
 
     #for masks
@@ -287,8 +284,14 @@ def plot_image_and_transition(img, pos, title="Image and Transition"):
 
 
     np.save(output_dir_file_name_mask_turb_npy, cropped_mask_turb)
+
+
     np.save(output_dir_file_name_mask_lami_npy, cropped_mask_lami)
+
     # plt.imsave(output_dir_file_name_mask_lami_npy, cropped_mask_lami, cmap='gray')
+
+    plt.imshow(cropped_mask_turb)
+    plt.show()
 
 
     return None

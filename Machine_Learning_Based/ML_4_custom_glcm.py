@@ -107,12 +107,6 @@ def calculate_glcm_features_on_lbp_patch(patch, levels=256):
 
     return np.hstack([contrast, dissimilarity, homogeneity, energy, correlation]).flatten()
 
-# # Example patch
-# patch = np.random.rand(10, 10)  # Replace with actual patch data
-# features = calculate_glcm_features_on_lbp_patch(patch)
-# print(features)
-
-
 def process_image_for_masked_regions(image, mask, label, patch_size):
     height, width = image.shape
     features = []

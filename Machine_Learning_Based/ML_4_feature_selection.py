@@ -7,9 +7,19 @@ import joblib
 
 
 # Load your dataset
-df_path = 'D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated two regions/features_3.csv'
+df_path = 'D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated two regions/features_5_stat_normalized.csv'
 df = pd.read_csv(df_path)
-print("before", len(df))
+
+# Count the number of zeros in the 'Label' column
+count_zeros = (df['Label'] == 0).sum()
+
+# Count the number of ones in the 'Label' column
+count_ones = (df['Label'] == 1).sum()
+
+# Print the counts
+print(f"Count of Zeros b4: {count_zeros}")
+print(f"Count of Ones b4: {count_ones}")
+
 
 # # Count the number of ones in each row (excluding the label column)
 # ones_count = (df.drop('Label', axis=1) == 1).sum(axis=1)
@@ -19,6 +29,19 @@ print("before", len(df))
 #
 # print("after", len(df))
 #
+# Separate the dataset into two based on the label
+df_zeros = df[df['Label'] == 0]
+df_ones = df[df['Label'] == 1]
+
+# Undersample the majority class
+df_ones_undersampled = resample(df_ones,
+                                 replace=False,    # sample without replacement
+                                 n_samples=len(df_zeros), # match number in minority class
+                                 random_state=42)  # reproducible results
+
+# Combine the minority class with the downsampled majority class
+df = pd.concat([df_ones_undersampled, df_zeros])
+
 # Count the number of zeros in the 'Label' column
 count_zeros = (df['Label'] == 0).sum()
 
@@ -28,20 +51,6 @@ count_ones = (df['Label'] == 1).sum()
 # Print the counts
 print(f"Count of Zeros: {count_zeros}")
 print(f"Count of Ones: {count_ones}")
-
-
-# # Separate the dataset into two based on the label
-# df_zeros = df[df['Label'] == 0]
-# df_ones = df[df['Label'] == 1]
-#
-# # Undersample the majority class
-# df_zeros_undersampled = resample(df_zeros,
-#                                  replace=False,    # sample without replacement
-#                                  n_samples=len(df_ones), # match number in minority class
-#                                  random_state=42)  # reproducible results
-#
-# # Combine the minority class with the downsampled majority class
-# df = pd.concat([df_zeros_undersampled, df_ones])
 
 # Shuffle the dataset
 df = df.sample(frac=1, random_state=42).reset_index(drop=True)
@@ -67,7 +76,7 @@ feature_importances = pd.DataFrame({'feature': X_train.columns, 'importance': im
 feature_importances = feature_importances.sort_values(by='importance', ascending=False)
 
 # Select a threshold for feature selection
-threshold = 0.05  # Example threshold
+threshold = 0.02  # Example threshold
 
 # Select features whose importance is above the threshold
 selected_features = feature_importances[feature_importances['importance'] > threshold]['feature']
@@ -84,7 +93,7 @@ rf_clf_selected = RandomForestClassifier(n_estimators=100, max_depth=5, min_samp
 rf_clf_selected.fit(X_train_selected, y_train)
 
 # Assuming rf_clf_selected is your trained Random Forest model
-model_filename = 'D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated two regions/glcm_rf_classifier_2.joblib'
+model_filename = 'D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated two regions/glcm_rf_classifier_3.joblib'
 joblib.dump(rf_clf_selected, model_filename)
 
 
