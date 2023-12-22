@@ -7,7 +7,7 @@ import joblib
 
 
 # Load your dataset
-df_path = 'D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated two regions/features_5_stat_normalized.csv'
+df_path = 'D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated two regions/features_12_glcm.csv'
 df = pd.read_csv(df_path)
 
 # Count the number of zeros in the 'Label' column
@@ -76,7 +76,7 @@ feature_importances = pd.DataFrame({'feature': X_train.columns, 'importance': im
 feature_importances = feature_importances.sort_values(by='importance', ascending=False)
 
 # Select a threshold for feature selection
-threshold = 0.02  # Example threshold
+threshold = 0.1  # Example threshold
 
 # Select features whose importance is above the threshold
 selected_features = feature_importances[feature_importances['importance'] > threshold]['feature']
@@ -93,7 +93,7 @@ rf_clf_selected = RandomForestClassifier(n_estimators=100, max_depth=5, min_samp
 rf_clf_selected.fit(X_train_selected, y_train)
 
 # Assuming rf_clf_selected is your trained Random Forest model
-model_filename = 'D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated two regions/glcm_rf_classifier_3.joblib'
+model_filename = 'D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated two regions/features_12_glcm.joblib'
 joblib.dump(rf_clf_selected, model_filename)
 
 

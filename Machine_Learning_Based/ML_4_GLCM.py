@@ -1,12 +1,10 @@
 import numpy as np
+import cv2
+from skimage.feature import local_binary_pattern, graycomatrix, graycoprops
 import os
 import pandas as pd
-from scipy.stats import skew, kurtosis
 import matplotlib.pyplot as plt
 from skimage import exposure
-from skimage.feature import local_binary_pattern
-import cv2
-
 
 
 def load_image(path):
@@ -19,57 +17,61 @@ def load_and_binarize_mask(path):
     mask[mask == 1] = 0
     mask[mask == 10] = 1
     mask = mask[125:200, 150:300]
+
+    # plt.imshow(mask)
+    # plt.show()
+
     return mask
 
-def calculate_statistical_moments(patch):
-    mean = np.mean(patch)
-    median = np.median(patch)
-    variance = np.var(patch)
-    skewness = skew(patch.flatten())
-    kurt = kurtosis(patch.flatten())
+# Function to convert image to uint8
+def convert_to_uint8(image):
+    normalized_image = cv2.normalize(image, None, 0, 255, cv2.NORM_MINMAX).astype(np.uint8)
+    uint8_image = cv2.equalizeHist(normalized_image)
 
-    return np.array([mean, median, variance, skewness, kurt])
-    # skewness = skew(patch.flatten())
-    # kurt = kurtosis(patch.flatten())
+    return uint8_image.astype(np.uint8)  # Convert to uint8
 
-def calculate_BRISQUE(patch):
+# def calculate_lbp(image, lbp_radius=1, lbp_n_points=8):
+#     """
+#     Calculate the Local Binary Pattern (LBP) of an image.
+#     """
+#     lbp_image = local_binary_pattern(image, lbp_n_points, lbp_radius, method='uniform')
+#     return lbp_image
 
-    quality_score = cv2.quality.QualityBRISQUE_compute(patch, "./brisque_model_live.yml", "./brisque_range_live.yml")
-    return quality_score[0]
 
+def calculate_glcm_features_on_patch(patch):
+
+    # lbp_patch = calculate_lbp(patch)
+    # lbp_patch = lbp_patch.astype(np.uint8)
+    # print(np.unique(lbp_patch))
+    patch_uint8 = convert_to_uint8(patch)
+    glcm = graycomatrix(patch_uint8, distances=[1], angles=[0, np.pi / 4, np.pi / 2, 3 * np.pi / 4], symmetric=True, normed=True)
+    # contrast = graycoprops(glcm, 'contrast')
+    # dissimilarity = graycoprops(glcm, 'dissimilarity')
+    # homogeneity = graycoprops(glcm, 'homogeneity')
+    # correlation = graycoprops(glcm, 'correlation')
+    energy = graycoprops(glcm, 'energy')
+    return np.hstack([energy]).flatten()
 
 def process_image_for_masked_regions(image, mask, label, patch_size_rows, patch_size_cols):
 
-    image_brisque = np.copy(image)
+    image = image[125:200, 150:300]
 
-    image_lbp = local_binary_pattern(image_brisque, 8, 1, method='uniform')
-    lbp_cropped_image = image_lbp[125:200, 150:300]
+    plt.imshow(image)
+    plt.show()
 
-    equalized_image = exposure.equalize_hist(image)
-    equalized_cropped_image = equalized_image[125:200, 150:300]
-
-    height, width = equalized_cropped_image.shape
-
+    height, width = image.shape
     features = []
     labels = []
 
     for y in range(0, height - patch_size_rows + 1, patch_size_rows):
         for x in range(0, width - patch_size_cols + 1, patch_size_cols):
             if np.any(mask[y:y + patch_size_rows, x:x + patch_size_cols] == 1):  # Check if any pixel in the patch in the mask is white
-                patch_equilized = equalized_cropped_image[y:y + patch_size_rows, x:x + patch_size_cols]
-                patch_brisque = lbp_cropped_image[y:y + patch_size_rows, x:x + patch_size_cols]
-
-
-                patch_features = calculate_statistical_moments(patch_equilized)
-                brisque_patch_feature = calculate_BRISQUE(patch_brisque)
-
-                patch_features = np.append(patch_features, brisque_patch_feature)
-
+                patch = image[y:y + patch_size_rows, x:x + patch_size_cols]
+                patch_features = calculate_glcm_features_on_patch(patch)
                 features.append(patch_features)
                 labels.append(label)
 
     return features, labels
-
 
 def get_matching_mask_path(image_path, mask_dir, mask_name_end):
     base_name = os.path.basename(image_path)
@@ -94,6 +96,11 @@ for image_name in os.listdir(image_dir):
         print("img_path", img_path)
         image = load_image(img_path)
 
+        image = exposure.equalize_hist(image)
+
+        # image[image < 296] = 296
+        # image[image > 298] = 298
+
         turb_mask_path = get_matching_mask_path(img_path, mask_dir, mask_name_end_turb)
         lamina_mask_path = get_matching_mask_path(img_path, mask_dir, mask_name_end_lami)
 
@@ -102,7 +109,7 @@ for image_name in os.listdir(image_dir):
 
         # plt.imshow(turb_mask)
         # plt.show()
-
+        #
         # plt.imshow(lamina_mask)
         # plt.show()
 
@@ -140,7 +147,8 @@ df_filtered = df_data[~temp_sav]
 
 
 # Assuming 'df' is your DataFram
-save_path = 'D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated two regions/features_10_stat.csv'
+save_path = 'D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated two regions/features_12_glcm.csv'
 
 # Save the DataFrame as a CSV file
 df_filtered.to_csv(save_path, index=False)
+

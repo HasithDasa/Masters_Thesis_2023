@@ -29,7 +29,7 @@ import warnings
 params = {
     
     "folder_path"       : r"D:\Academic\MSc\Thesis\Project files\Project Complete\data\new data\npy",
-    "file_name"         : "irdata_0001_0022.npy",
+    "file_name"         : "irdata_0012_0201.npy",
     "start_x_position"  : 200, # Start des Bereiches in dem Transition bestimmt wird
     "stripe_width"      : 100, # Breite des Bereiches in dem Transition bestimmt wird
     "smooth"            : 0, #If zero then no smoothing is applied
@@ -61,6 +61,7 @@ def main():
     
     
     print("The transition is determined at {} pixels from the top".format(mu_pos_trans))
+    print("The transition is determined at {} pixels from the trailing edge".format(np.average(ioc_trans)))
     print("The standard deviation of the result is {} ".format(std_pos_trans))
     print("The CNR of the image is {} .".format(CNR))
     
@@ -237,8 +238,12 @@ def crop_image_based_on_zeros(img):
 
     
 def plot_image_and_transition(img, pos, title="Image and Transition"):
-    img_print = img
+    img_print = np.copy(img)
     plot_np_image(img_print, title=title)
+
+
+
+
     # img_print[ int(pos) , ::20] = 1
 
     output_dir ="D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/save_images/image_with_trans_line"
@@ -247,15 +252,15 @@ def plot_image_and_transition(img, pos, title="Image and Transition"):
 
     output_dir_file_name_npy = os.path.join(output_dir, file_name)
 
-    img_save = img_print
+    img_save = np.copy(img)
     # Crop the image based on zero values
     cropped_img = crop_image_based_on_zeros(img_save)
 
     np.save(output_dir_file_name_npy, cropped_img)
 
     #for masks
-    img_mask_turb = img_save
-    img_mask_lami = img_save
+    img_mask_turb = np.copy(img)
+    img_mask_lami = np.copy(img)
 
 
     # Apply the conditions to the array
@@ -291,6 +296,9 @@ def plot_image_and_transition(img, pos, title="Image and Transition"):
     # plt.imsave(output_dir_file_name_mask_lami_npy, cropped_mask_lami, cmap='gray')
 
     plt.imshow(cropped_mask_turb)
+    plt.show()
+
+    plt.imshow(cropped_mask_lami)
     plt.show()
 
 
