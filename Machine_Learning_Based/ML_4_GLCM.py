@@ -16,7 +16,7 @@ def load_and_binarize_mask(path):
     mask = np.load(path)
     mask[mask == 1] = 0
     mask[mask == 10] = 1
-    mask = mask[125:200, 150:300]
+    mask = mask[75:180, 50:200]
 
     # plt.imshow(mask)
     # plt.show()
@@ -29,14 +29,6 @@ def convert_to_uint8(image):
     uint8_image = cv2.equalizeHist(normalized_image)
 
     return uint8_image.astype(np.uint8)  # Convert to uint8
-
-# def calculate_lbp(image, lbp_radius=1, lbp_n_points=8):
-#     """
-#     Calculate the Local Binary Pattern (LBP) of an image.
-#     """
-#     lbp_image = local_binary_pattern(image, lbp_n_points, lbp_radius, method='uniform')
-#     return lbp_image
-
 
 def calculate_glcm_features_on_patch(patch):
 
@@ -54,7 +46,7 @@ def calculate_glcm_features_on_patch(patch):
 
 def process_image_for_masked_regions(image, mask, label, patch_size_rows, patch_size_cols):
 
-    image = image[125:200, 150:300]
+    image = image[75:180, 50:200]
 
     plt.imshow(image)
     plt.show()
@@ -62,10 +54,12 @@ def process_image_for_masked_regions(image, mask, label, patch_size_rows, patch_
     height, width = image.shape
     features = []
     labels = []
+    threshold = patch_size_rows * patch_size_cols / 2
 
     for y in range(0, height - patch_size_rows + 1, patch_size_rows):
         for x in range(0, width - patch_size_cols + 1, patch_size_cols):
-            if np.any(mask[y:y + patch_size_rows, x:x + patch_size_cols] == 1):  # Check if any pixel in the patch in the mask is white
+            # if np.any(mask[y:y + patch_size_rows, x:x + patch_size_cols] == 1):  # Check if any pixel in the patch in the mask is white
+            if np.sum(mask[y:y + patch_size_rows, x:x + patch_size_cols]) > threshold: # Check if the majority of pixels in the patch in the mask are white
                 patch = image[y:y + patch_size_rows, x:x + patch_size_cols]
                 patch_features = calculate_glcm_features_on_patch(patch)
                 features.append(patch_features)
@@ -79,8 +73,8 @@ def get_matching_mask_path(image_path, mask_dir, mask_name_end):
     return os.path.join(mask_dir, mask_name).replace('\\', '/')
 
 # Directories containing the images and masks
-image_dir = 'D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/save_images/image_with_trans_line/'
-mask_dir = 'D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/save_images/image_with_trans_line/masks'
+image_dir = 'D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/save_images/image_with_trans_line/new_data_set'
+mask_dir = 'D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/save_images/image_with_trans_line/new_data_set/masks'
 mask_name_end_turb = '_turbul.npy'
 mask_name_end_lami = '_lami.npy'
 
@@ -133,21 +127,25 @@ df['Label'] = all_labels
 # Skipping the first row (header)
 df_data = df.iloc[1:]
 
-# Identify rows to be removed by comparing numpy arrays directly
-temp_sav = (df_data.iloc[:-1, :-1].to_numpy() == df_data.iloc[1:, :-1].to_numpy()).all(axis=1) & (df_data.iloc[:-1, -1].to_numpy() != df_data.iloc[1:, -1].to_numpy())
+# # Identify rows to be removed by comparing numpy arrays directly
+# temp_sav = (df_data.iloc[:-1, :-1].to_numpy() == df_data.iloc[1:, :-1].to_numpy()).all(axis=1) & (df_data.iloc[:-1, -1].to_numpy() != df_data.iloc[1:, -1].to_numpy())
+#
+# # Combine temp_sav for current and next rows
+# temp_sav = temp_sav | np.roll(temp_sav, 1)
+#
+# # Adjust the length of temp_sav to match df_data
+# temp_sav = np.append(temp_sav, False)
+#
+# # Apply temp_sav to df_data to filter out rows
+# df_filtered = df_data[~temp_sav]
 
-# Combine temp_sav for current and next rows
-temp_sav = temp_sav | np.roll(temp_sav, 1)
 
-# Adjust the length of temp_sav to match df_data
-temp_sav = np.append(temp_sav, False)
-
-# Apply temp_sav to df_data to filter out rows
-df_filtered = df_data[~temp_sav]
+# Filter rows
+df_filtered = df_data[~((df_data['Label'] == 0) & (df_data.drop('Label', axis=1) < 0.1).all(axis=1))]
 
 
 # Assuming 'df' is your DataFram
-save_path = 'D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated two regions/features_12_glcm.csv'
+save_path = 'D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated two regions/features_13_glcm_new.csv'
 
 # Save the DataFrame as a CSV file
 df_filtered.to_csv(save_path, index=False)

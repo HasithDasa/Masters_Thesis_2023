@@ -7,17 +7,13 @@ from skimage.feature import local_binary_pattern
 import matplotlib.colors as colors
 
 
-image = np.load('D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/save_images/image_with_trans_line/irdata_0001_0005.npy')
+image = np.load('D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/save_images/image_with_trans_line/new_data_set/irdata_0001_0038.npy')
 
 
-image[image < 296] = 296
-image[image > 298] = 298
-
-# Apply logarithmic transformation, avoiding log(0) issues
-data_log = image
+lbp_roi = local_binary_pattern(image, P=80, R=10, method="uniform")
 
 # Plotting
-plt.imshow(data_log, norm=colors.LogNorm(vmin=data_log.min(), vmax=data_log.max()))
+plt.imshow(lbp_roi)
 plt.colorbar()
 plt.title("Logarithmic Scale Display of NPY File")
 plt.show()

@@ -7,7 +7,7 @@ import joblib
 
 
 # Load your dataset
-df_path = 'D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated two regions/features_12_glcm.csv'
+df_path = 'D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated two regions/features_14_stat.csv'
 df = pd.read_csv(df_path)
 
 # Count the number of zeros in the 'Label' column
@@ -93,7 +93,7 @@ rf_clf_selected = RandomForestClassifier(n_estimators=100, max_depth=5, min_samp
 rf_clf_selected.fit(X_train_selected, y_train)
 
 # Assuming rf_clf_selected is your trained Random Forest model
-model_filename = 'D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated two regions/features_12_glcm.joblib'
+model_filename = 'D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated two regions/features_14_stat.joblib'
 joblib.dump(rf_clf_selected, model_filename)
 
 
