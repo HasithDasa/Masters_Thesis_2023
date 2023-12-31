@@ -8,13 +8,10 @@ from skimage import exposure
 
 
 # [crop_starting_row:crop_ending_row, crop_starting_column:crop_ending_column]
-crop_starting_row = 110
-crop_ending_row = 230
-crop_starting_column = 200
-crop_ending_column = 320
-
-patch_size_rows = 3
-patch_size_cols = 120
+crop_starting_row = 100
+crop_ending_row = 200
+crop_starting_column = 100
+crop_ending_column = 250
 
 
 def load_image(path):
@@ -32,9 +29,6 @@ def load_and_binarize_mask(path):
     mask = mask[crop_starting_row:crop_ending_row, crop_starting_column:crop_ending_column]
     # print("mask:", np.shape(mask))
 
-
-
-
     return mask
 
 # Function to convert image to uint8
@@ -46,11 +40,8 @@ def convert_to_uint8(image):
 
 def calculate_glcm_features_on_patch(patch):
 
-    # lbp_patch = calculate_lbp(patch)
-    # lbp_patch = lbp_patch.astype(np.uint8)
-    # print(np.unique(lbp_patch))
     patch_uint8 = convert_to_uint8(patch)
-    glcm = graycomatrix(patch_uint8, distances=[2], angles=[0, np.pi / 4, np.pi / 2, 3 * np.pi / 4], symmetric=True, normed=True)
+    # glcm = graycomatrix(patch_uint8, distances=[5], angles=[0, np.pi / 4, np.pi / 2, 3 * np.pi / 4], symmetric=True, normed=True)
     # contrast = graycoprops(glcm, 'contrast')
     # dissimilarity = graycoprops(glcm, 'dissimilarity')
     # homogeneity = graycoprops(glcm, 'homogeneity')
@@ -61,19 +52,22 @@ def calculate_glcm_features_on_patch(patch):
 
 def process_image_for_masked_regions(image, mask, label, patch_size_rows, patch_size_cols):
 
-    equalized_image = exposure.equalize_hist(image)
+    image = convert_to_uint8(image)
+    glcm = graycomatrix(image, distances=[1], angles=[0], levels=256, symmetric=True, normed=True)
 
-    plt.imshow(equalized_image)
+    # equalized_image = exposure.equalize_hist(image)
+
+    plt.imshow(glcm)
     # plt.show()
 
 
-    image = equalized_image[crop_starting_row:crop_ending_row, crop_starting_column:crop_ending_column]
+    glcm = glcm[crop_starting_row:crop_ending_row, crop_starting_column:crop_ending_column]
 
-    plt.imshow(image)
+    plt.imshow(glcm)
     # np.save("000abc.npy", image)
 
 
-    height, width = image.shape
+    height, width = glcm.shape
     # print("height:", height)
     # print("width:", width)
     features = []
@@ -84,7 +78,7 @@ def process_image_for_masked_regions(image, mask, label, patch_size_rows, patch_
         for x in range(0, width - patch_size_cols + 1, patch_size_cols):
             # if np.any(mask[y:y + patch_size_rows, x:x + patch_size_cols] == 1):  # Check if any pixel in the patch in the mask is white
             if np.sum(mask[y:y + patch_size_rows, x:x + patch_size_cols]) > threshold: # Check if the majority of pixels in the patch in the mask are white
-                patch = image[y:y + patch_size_rows, x:x + patch_size_cols]
+                patch = glcm[y:y + patch_size_rows, x:x + patch_size_cols]
                 patch_features = calculate_glcm_features_on_patch(patch)
                 features.append(patch_features)
                 labels.append(label)
@@ -102,7 +96,8 @@ mask_dir = 'D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/
 mask_name_end_turb = '_turbul.npy'
 mask_name_end_lami = '_lami.npy'
 
-
+patch_size_rows = 5
+patch_size_cols = 150
 
 all_features = []
 all_labels = []
@@ -157,12 +152,12 @@ df['Label'] = all_labels
 # df_filtered = df_data[~temp_sav]
 
 
-# Filter rows
-df = df[~((df['Label'] == 0) & (df.drop('Label', axis=1) < 0.1).all(axis=1))]
+# # Filter rows
+# df_filtered = df_data[~((df_data['Label'] == 0) & (df_data.drop('Label', axis=1) < 0.1).all(axis=1))]
 
 
 # Assuming 'df' is your DataFram
-save_path = 'D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated two regions/features_glcm_3.csv'
+save_path = 'D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated two regions/features_glcm_2.csv'
 
 # Save the DataFrame as a CSV file
 df.to_csv(save_path, index=False)

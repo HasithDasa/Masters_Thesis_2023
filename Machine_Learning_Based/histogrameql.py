@@ -7,7 +7,7 @@ from skimage.feature import local_binary_pattern
 import matplotlib.colors as colors
 
 
-image = np.load('D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/save_images/image_with_trans_line/new_data_set/irdata_0001_0038.npy')
+image = np.load('D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/save_images/image_with_trans_line/new_data_set/normalized/irdata_0001_0338.npy')
 
 
 lbp_roi = local_binary_pattern(image, P=80, R=10, method="uniform")

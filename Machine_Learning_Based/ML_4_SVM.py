@@ -6,15 +6,30 @@ from sklearn.utils import resample
 import joblib
 
 # Load your dataset
-df_path = 'D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated two regions/features_5_stat_normalized.csv'
-df = pd.read_csv(df_path).head(75100)
+df_path = 'D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated two regions/working GLCM/features_glcm_2.csv'
+df = pd.read_csv(df_path)
 
 
 
-# # Print the counts
-# print(f"Count of Zeros: {count_zeros}")
-# print(f"Count of Ones: {count_ones}")
+# Count the number of zeros in the 'Label' column
+count_zeros = (df['Label'] == 0).sum()
 
+# Count the number of ones in the 'Label' column
+count_ones = (df['Label'] == 1).sum()
+
+# Print the counts
+print(f"Count of Zeros b4: {count_zeros}")
+print(f"Count of Ones b4: {count_ones}")
+
+
+# # Count the number of ones in each row (excluding the label column)
+# ones_count = (df.drop('Label', axis=1) == 1).sum(axis=1)
+#
+# # Filter out rows where the count of ones is greater than 4
+# df = df[ones_count <= 4]
+#
+# print("after", len(df))
+#
 # Separate the dataset into two based on the label
 df_zeros = df[df['Label'] == 0]
 df_ones = df[df['Label'] == 1]
@@ -43,9 +58,10 @@ df = df.sample(frac=1, random_state=42).reset_index(drop=True)
 
 
 
+
 # Define feature combinations
-# feature_combinations = [('Feature_3', 'Feature_2'), ('Feature_3', 'Feature_1'), ('Feature_3', 'Feature_4')]
-feature_combinations = [('Feature_3', 'Feature_4')]
+# feature_combinations = [('Feature_1', 'Feature_4'), ('Feature_1', 'Feature_2'), ('Feature_2', 'Feature_4'), ('Feature_1','Feature_2','Feature_4')]
+feature_combinations = [('Feature_1','Feature_2','Feature_4')]
 
 for features in feature_combinations:
     # Separate features and labels for the specific combination
@@ -59,8 +75,8 @@ for features in feature_combinations:
     svm_clf = SVC(random_state=42)
 
     # Define the parameter grid for hyperparameter tuning
-    param_grid = {'C': [1], 'gamma': [100], 'kernel': ['rbf']} #60% accuracy
-    # param_grid = {'C': [0.001, 0.01, 0.1, 1], 'gamma': [100, 10, 1, 0.1], 'kernel': ['linear', 'sigmoid']}
+    # param_grid = {'C': [1], 'gamma': [100], 'kernel': ['rbf']} #60% accuracy
+    param_grid = {'C': [0.001, 0.01, 0.1, 1], 'gamma': [100, 10, 1, 0.1], 'kernel': ['linear', 'rbf']}
 
     # Perform grid search
     grid_search = GridSearchCV(svm_clf, param_grid, cv=3, scoring='accuracy', verbose=2, n_jobs=-1)
@@ -94,6 +110,14 @@ for features in feature_combinations:
 
     # Save the best SVM model for each feature combination
     model_filename = f'svm_classifier_{features[0]}_{features[1]}.joblib'
-    joblib.dump(best_svm_clf, model_filename)
+    path = "D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated two regions/"
+    path_and_name = path+model_filename
+    joblib.dump(best_svm_clf, path_and_name)
     print(f"Best SVM model saved as {model_filename}")
     print(f"Best parameters found with features {features}: {grid_search.best_params_}")
+
+
+
+# #    # Define the parameter grid for hyperparameter tuning
+#     param_grid = {'C': [1], 'gamma': [100], 'kernel': ['rbf']} #60% accuracy
+#     # param_grid = {'C': [0.001, 0.01, 0.1, 1], 'gamma': [100, 10, 1, 0.1], 'kernel': ['linear', 'sigmoid']}

@@ -7,6 +7,14 @@ from skimage import exposure
 from skimage.feature import local_binary_pattern
 import cv2
 
+# [crop_starting_row:crop_ending_row, crop_starting_column:crop_ending_column]
+crop_starting_row = 100
+crop_ending_row = 175
+crop_starting_column = 100
+crop_ending_column = 250
+
+patch_size_rows = 1
+patch_size_cols = 150
 
 
 def load_image(path):
@@ -18,7 +26,7 @@ def load_and_binarize_mask(path):
     mask = np.load(path)
     mask[mask == 1] = 0
     mask[mask == 10] = 1
-    mask = mask[75:180, 50:200]
+    mask = mask[crop_starting_row:crop_ending_row, crop_starting_column:crop_ending_column]
     return mask
 
 def calculate_statistical_moments(patch):
@@ -43,11 +51,11 @@ def process_image_for_masked_regions(image, mask, label, patch_size_rows, patch_
     image_brisque = np.copy(image)
 
     image_lbp = local_binary_pattern(image_brisque, 8, 1, method='uniform')
-    lbp_cropped_image = image_lbp[75:180, 50:200]
+    lbp_cropped_image = image_lbp[crop_starting_row:crop_ending_row, crop_starting_column:crop_ending_column]
 
     # equalized_image = exposure.equalize_hist(image)
     equalized_image = np.copy(image)
-    equalized_cropped_image = equalized_image[75:180, 50:200]
+    equalized_cropped_image = equalized_image[crop_starting_row:crop_ending_row, crop_starting_column:crop_ending_column]
 
     height, width = equalized_cropped_image.shape
 
@@ -64,7 +72,7 @@ def process_image_for_masked_regions(image, mask, label, patch_size_rows, patch_
 
 
                 patch_features = calculate_statistical_moments(patch_equilized)
-                brisque_patch_feature = calculate_BRISQUE(patch_brisque)
+                brisque_patch_feature = calculate_statistical_moments(patch_brisque)
 
                 patch_features = np.append(patch_features, brisque_patch_feature)
 
@@ -85,8 +93,7 @@ mask_dir = 'D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/
 mask_name_end_turb = '_turbul.npy'
 mask_name_end_lami = '_lami.npy'
 
-patch_size_rows = 5
-patch_size_cols = 150
+
 
 all_features = []
 all_labels = []
@@ -148,7 +155,7 @@ final_df = df_data[~((df_data['Label'] == 1) & (df_data.iloc[:, 0:2] > 0).any(ax
 
 
 # Assuming 'df' is your DataFram
-save_path = 'D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated two regions/features_14_stat.csv'
+save_path = 'D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated two regions/features_16_stat_lbp.csv'
 
 # Save the DataFrame as a CSV file
 final_df.to_csv(save_path, index=False)
