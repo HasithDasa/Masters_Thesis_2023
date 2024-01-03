@@ -1,13 +1,13 @@
 import pandas as pd
 from sklearn.model_selection import train_test_split, cross_val_score
-from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.metrics import accuracy_score
 from sklearn.utils import resample
 import joblib
 
 # Load your dataset
 df_path = 'D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated two regions/features_5_stat_normalized.csv'
-df = pd.read_csv(df_path)
+df = pd.read_csv(df_path).head(50000)
 
 # Separate the dataset into two based on the label
 df_zeros = df[df['Label'] == 0]
@@ -32,31 +32,28 @@ count_ones = (df['Label'] == 1).sum()
 print(f"Count of Zeros: {count_zeros}")
 print(f"Count of Ones: {count_ones}")
 
-
-
 # Shuffle the dataset
 df = df.sample(frac=1, random_state=42).reset_index(drop=True)
 
 # Select only the features of interest (Features 3 and 4)
-# X = df[['Feature_3', 'Feature_1']]
-X = df[['Feature_2']]
+X = df[['Feature_3', 'Feature_4']]
 y = df['Label']
 
 # Split the dataset into training and testing sets
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
 
-# Initialize the Decision Tree Classifier
-dt_clf = DecisionTreeClassifier(random_state=42)
+# Initialize the Gradient Boosting Classifier
+gbm_clf = GradientBoostingClassifier(n_estimators=200, learning_rate=0.001, max_depth=5, random_state=42)
 
 # Train the classifier
-dt_clf.fit(X_train, y_train)
+gbm_clf.fit(X_train, y_train)
 
 # Perform cross-validation on the training set
-cv_scores = cross_val_score(dt_clf, X_train, y_train, cv=5)
+cv_scores = cross_val_score(gbm_clf, X_train, y_train, cv=5)
 
 # Predict on both the training and testing sets
-y_train_pred = dt_clf.predict(X_train)
-y_test_pred = dt_clf.predict(X_test)
+y_train_pred = gbm_clf.predict(X_train)
+y_test_pred = gbm_clf.predict(X_test)
 
 # Calculate and compare accuracies
 train_accuracy = accuracy_score(y_train, y_train_pred)
@@ -75,6 +72,6 @@ print(f"Cross-Validation Scores: {cv_scores}")
 print(f"Average CV Score: {cv_scores.mean():.2f}")
 
 # Save the trained model
-model_filename = 'decision_tree_classifier.joblib'
-joblib.dump(dt_clf, model_filename)
-print(f"Decision Tree model saved as {model_filename}")
+model_filename = 'gbm_classifier.joblib'
+joblib.dump(gbm_clf, model_filename)
+print(f"Gradient Boosting Machine model saved as {model_filename}")

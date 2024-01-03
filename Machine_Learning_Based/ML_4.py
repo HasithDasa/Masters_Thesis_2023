@@ -1,16 +1,9 @@
 import numpy as np
 import cv2
 from skimage.feature import local_binary_pattern, graycomatrix, graycoprops, hog
-from scipy.ndimage import convolve
-from skimage.filters import gabor_kernel
-from numpy.fft import fft2, fftshift, ifft2
-import matplotlib.pyplot as plt
 import os
 import pandas as pd
 
-
-# # Load thermal image
-# thermal_image = np.load('D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/save_images/irdata_0001_0002.npy')
 
 def load_image(path):
     return np.load(path)
@@ -18,18 +11,10 @@ def load_image(path):
 # Load and binarize masks
 def load_and_binarize_mask(path):
     print("path", path)
-    mask = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
-    mask[mask > 0] = 255
+    mask = np.load(path)
+    mask[mask == 1] = 0
+    mask[mask == 10] = 1
     return mask
-
-# background_mask = load_and_binarize_mask('D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated lbp/ir_data_0001_0002_annotation-3-by-1-tag-Background-0.png')
-# transitional_mask = load_and_binarize_mask('D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated lbp/ir_data_0001_0002_annotation-3-by-1-tag-Transitional-0.png')
-# other_mask = load_and_binarize_mask('D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated lbp/ir_data_0001_0002_annotation-3-by-1-tag-Other Regions-0.png')
-
-
-# Apply masks to LBP image
-def apply_mask(img, mask):
-    return cv2.bitwise_and(img, img, mask=mask)
 
 # Function to convert image to uint8
 def convert_to_uint8(image):
@@ -38,23 +23,27 @@ def convert_to_uint8(image):
 
     return uint8_image.astype(np.uint8)  # Convert to uint8
 
+def calculate_lbp(image, lbp_radius=1, lbp_n_points=8):
+    """
+    Calculate the Local Binary Pattern (LBP) of an image.
+    """
+    lbp_image = local_binary_pattern(image, lbp_n_points, lbp_radius, method='uniform')
+    return lbp_image
+
 
 def calculate_glcm_features_on_patch(patch):
-    patch_uint8 = convert_to_uint8(patch)
-    glcm = graycomatrix(patch_uint8, distances=[1], angles=[0, np.pi / 4, np.pi / 2, 3 * np.pi / 4],
-                        symmetric=True, normed=True)
+
+    lbp_patch = calculate_lbp(patch)
+    lbp_patch = lbp_patch.astype(np.uint8) # convert to uint8 without changing anyvalue
+    # print(np.unique(lbp_patch))
+    patch_uint8 = convert_to_uint8(patch) # keep this for general glcm calculations
+    glcm = graycomatrix(lbp_patch, distances=[1], angles=[0, np.pi / 4, np.pi / 2, 3 * np.pi / 4], symmetric=True, normed=True)
     contrast = graycoprops(glcm, 'contrast')
     dissimilarity = graycoprops(glcm, 'dissimilarity')
     homogeneity = graycoprops(glcm, 'homogeneity')
     energy = graycoprops(glcm, 'energy')
     correlation = graycoprops(glcm, 'correlation')
     return np.hstack([contrast, dissimilarity, homogeneity, energy, correlation]).flatten()
-
-def create_other_region_mask(transitional_mask):
-    other_region_mask = np.copy(transitional_mask)
-    other_region_mask[transitional_mask == 0] = 255
-    other_region_mask[transitional_mask == 255] = 0
-    return other_region_mask
 
 def process_image_for_masked_regions(image, mask, label, patch_size):
     height, width = image.shape
@@ -63,7 +52,7 @@ def process_image_for_masked_regions(image, mask, label, patch_size):
 
     for y in range(0, height - patch_size + 1):
         for x in range(0, width - patch_size + 1):
-            if mask[y, x] == 255:  # Check if the current pixel in the mask is white
+            if mask[y, x] == 1:  # Check if the current pixel in the mask is white
                 patch = image[y:y + patch_size, x:x + patch_size]
                 patch_features = calculate_glcm_features_on_patch(patch)
                 features.append(patch_features)
@@ -92,14 +81,16 @@ def process_image_for_masked_regions(image, mask, label, patch_size):
 #     return image_with_rectangle, (x_min, y_min, x_max, y_max)
 
 
-def get_matching_mask_path(image_path, mask_dir):
+def get_matching_mask_path(image_path, mask_dir, mask_name_end):
     base_name = os.path.basename(image_path)
-    mask_name = base_name.replace('.npy', '.png')  # Replace .npy with .png
+    mask_name = base_name.replace('.npy', mask_name_end)  # Replace .npy with ._turb.npy or _lamina.npy
     return os.path.join(mask_dir, mask_name).replace('\\', '/')
 
 # Directories containing the images and masks
-image_dir = 'D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/save_images/'
-mask_dir = 'D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated lbp'
+image_dir = 'D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/save_images/image_with_trans_line/'
+mask_dir = 'D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/save_images/image_with_trans_line/masks'
+mask_name_end_turb = '_turbul.npy'
+mask_name_end_lami = '_lami.npy'
 
 patch_size = 5  # Define the patch size
 
@@ -112,17 +103,18 @@ for image_name in os.listdir(image_dir):
         print("img_path", img_path)
         image = load_image(img_path)
 
-        trans_mask_path = get_matching_mask_path(img_path, mask_dir)
-        trans_mask = load_and_binarize_mask(trans_mask_path)
-        other_mask = create_other_region_mask(trans_mask)
+        turb_mask_path = get_matching_mask_path(img_path, mask_dir, mask_name_end_turb)
+        lamina_mask_path = get_matching_mask_path(img_path, mask_dir, mask_name_end_lami)
+        turb_mask = load_and_binarize_mask(turb_mask_path)
+        lamina_mask = load_and_binarize_mask(lamina_mask_path)
 
-        trans_features, trans_labels = process_image_for_masked_regions(image, trans_mask, 1, patch_size)
-        other_features, other_labels = process_image_for_masked_regions(image, other_mask, 0, patch_size)
+        turb_features, turb_labels = process_image_for_masked_regions(image, turb_mask, 1, patch_size)
+        lami_features, lami_labels = process_image_for_masked_regions(image, lamina_mask, 0, patch_size)
 
-        all_features.extend(trans_features)
-        all_features.extend(other_features)
-        all_labels.extend(trans_labels)
-        all_labels.extend(other_labels)
+        all_features.extend(turb_features)
+        all_features.extend(lami_features)
+        all_labels.extend(turb_labels)
+        all_labels.extend(lami_labels)
 
 # Convert to numpy arrays and create a DataFrame
 all_features = np.array(all_features)
@@ -132,7 +124,7 @@ df = pd.DataFrame(all_features, columns=feature_columns)
 df['Label'] = all_labels
 
 # Assuming 'df' is your DataFram
-save_path = 'D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated lbp/features.csv'
+save_path = 'D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated two regions/features_3.csv'
 
 # Save the DataFrame as a CSV file
 df.to_csv(save_path, index=False)

@@ -33,7 +33,7 @@ My prefered structure is that parameters
 params = {
     "canny_min_length"  :  5, 
     "folder_path"       : r"D:\Academic\MSc\Thesis\Project files\Project Complete\data\new data\npy",
-    "file_name"         : "irdata_0001_0001",
+    "file_name"         : "irdata_0001_0025",
     "type"              : ".npy",
     "min_arc_length"    : 100,
     "noise_std"         : 0, 
@@ -51,7 +51,7 @@ def main():
     img_pre = np.load(file_str)
     img = preprocess(img_pre, params=params)
     plot_np_image(img)
-    # save_image(img, params=params)
+    save_image(img, params=params)
     return None 
 
 def preprocess(img_pre, params=params):
@@ -66,18 +66,6 @@ def preprocess(img_pre, params=params):
     img = rotate_and_crop(img, angle)
     img = remove_background(img, hist, bin_edges)
     return img
-def crop_image_based_on_zeros(img):
-    # Find the indices of non-zero elements
-    rows = np.any(img, axis=1)
-    cols = np.any(img, axis=0)
-
-    # Find the bounding box of non-zero elements
-    rmin, rmax = np.where(rows)[0][[0, -1]]
-    cmin, cmax = np.where(cols)[0][[0, -1]]
-
-    # Crop the image
-    cropped_img = img[rmin:rmax+1, cmin:cmax+1]
-    return cropped_img
 
 def save_image(img, params=params):
 
@@ -86,7 +74,6 @@ def save_image(img, params=params):
         exit()
 
     saving_location_np =  os.path.join(params['folder_path_save'], params['file_name'])
-    img = crop_image_based_on_zeros(img)
     np.save(saving_location_np, img)
 
     # Get the minimum and maximum values of the image
@@ -107,44 +94,6 @@ def save_image(img, params=params):
     saving_location = os.path.join(params['folder_path_save'], com_file_name_sav)
     cv2.imwrite(saving_location, uint8_image)
 
-
-def add_noise(img, params=params):
-    
-    ## Adding noise
-    if params["noise_std"]:
-        non_zero_mask = img != 0
-        noise = np.random.normal(0, params["noise_std"], img.shape)
-        img[non_zero_mask] += noise[non_zero_mask]
-        # plot_np_image(img, "Noised image")
-    return img
-
-def remove_dead_on_blade(img, te, le):
-    for i, col in enumerate(img.T):
-        active = col[int(te[i]): int(le[i])]
-        active[active==0] = np.mean(active[active != 0])
-    return img
-
-
-def remove_dead_pixels(img):
-    """This remove zero valued pixels if all other pixels around have a value"""
-    cus_filter = np.array([[1, 1, 1], 
-                           [1, 9, 1],
-                           [1, 1, 1]])
-    """Here, a custom filter (cus_filter) is defined. This filter seems designed for a convolution operation.
-    The center value (9) being distinctively larger suggests that this filter 
-    might be used to detect pixels that stand out from their neighbors."""
-
-    # all non-zero values in the original img are set to 1, while zero values remain zero.
-    bin_img = np.where(img != 0, 1, img)
-    filt = cv2.filter2D(bin_img, -1, cus_filter)
-    # Find the coordinates where filt equals 8
-    row, col = np.where(filt == 8)
-    
-    img_no_dead = img.copy()
-    """For every pixel identified as a 'dead pixel' (those surrounded by non-zero values), 
-    its value is replaced by the average of the pixel immediately above and the pixel immediately below it. """
-    img_no_dead[row, col] = (img_no_dead[row - 1, col] + img_no_dead[row+1, col] ) /2
-    return img_no_dead
 
 def campain_special(img, params=params):
     img = img[:, 0:400] # The measurement was very close to the tower
@@ -254,17 +203,12 @@ def remove_background(img, hist, bin_edges):
     hist[:i] = 0
 
     lower_lim = bin_edges[np.min(np.nonzero(hist))]
-    print("lower_lim", lower_lim)
     upper_lim = bin_edges[np.max(np.nonzero(hist))+1]
     # img[(img<lower_lim) | (img>upper_lim)] = 0
     img[(img<lower_lim)] = 0
     img[(img>upper_lim)] = upper_lim
-    print("min", np.min(img))
-    print("max", np.max(img))
 
     # plot_np_image(img, title="Background removed")
-
-    img = remove_dead_pixels(img)
 
     return img
 
@@ -355,100 +299,6 @@ def plot_np_image(img, title="Figure X"):
     plt.show()
     return fig, ax
 
-def plot_np_image_with_contours(img, contours, title="with contours"):
-    """ This function plots an numpy image with title image and shows the detected contours """
-
-    contour_img = img.copy()
-    cv2.drawContours(contour_img, contours, -1, img.max()+5, 2)
-
-    fig, ax = plt.subplots()
-    im = ax.imshow(contour_img, vmin=290, vmax=img.max())
-    fig.suptitle(title + ", created: {}".format(datetime.now().strftime("%H:%M:%S")))
-    ax.set_xlabel("x position on rotor blade")
-    ax.set_ylabel("y position on rotor blade")
-    # Create a colorbar object
-    cbar = fig.colorbar( im, ax=ax, label="The intensity")
-
-    # Customize the colorbar
-    cbar.ax.set_ylabel('Colorbar Label', fontsize=12)
-    cbar.ax.tick_params(labelsize=10)
-    plt.show()
-
-    return fig, ax
-
-def plot_np_image_with_edges(img, edges, title="with edges"):
-    """ This function plots an numpy image with title image and shows the detected contours """
-
-    edge_img = img.copy()
-    edge_val = np.max(edge_img) + 10
-    for edge in edges:
-        for x, y in enumerate(edge):
-            edge_img[int(y)-2: int(y)+3, x] = edge_val
-
-    fig, ax = plt.subplots()
-    im = ax.imshow(edge_img, vmin=290, vmax=edge_img.max())
-    fig.suptitle(title + ", created: {}".format(datetime.now().strftime("%H:%M:%S")))
-    ax.set_xlabel("x position on rotor blade")
-    ax.set_ylabel("y position on rotor blade")
-    # Create a colorbar object
-    cbar = fig.colorbar( im, ax=ax, label="The intensity")
-
-    # Customize the colorbar
-    cbar.ax.set_ylabel('Colorbar Label', fontsize=12)
-    cbar.ax.tick_params(labelsize=10)
-    plt.show()
-
-    return fig, ax
-    
-# def draw_rectangle_on_image(img, rect):
-#     box = cv2.boxPoints(rect)
-#     box = np.int0(box)
-#
-#     # Draw the minimum area rectangle on the original image
-#     cv2.drawContours(img,[box],0,(0,0,255),2)
-#
-#     return img
-
-# def derotate(img, params):
-    
-#     """ This function recognices the rotor blade and derotates it."""
-    
-#     img_ori = img.copy()
-#     contours = find_contours(img)
-#     print("We have found {} contours.".format(len(contours)))
-#     contur_img = cv2.drawContours(img, contours, -1, color=(255,255,255), thickness=5)
-    
-#     # Get the minimum area rectangle that contains all the contours
-#     rect = cv2.minAreaRect(np.concatenate(contours))
-#     draw_rectangle_on_image(img, rect)
-    
-#     img = rotate_and_crop(img, angle=rect[2])
-    
-#     # img = rotate(img_ori, angle=rect[2], mode="constant")
-    
-#     # If rotor blade is vertically
-#     if np.mean(np.std(img, axis=0)) < np.mean(np.std(img, axis=1)):
-#         img = np.rot90(img, k=1)
-    
-#     return img
-# def remove_outliers(T_std):
-# # Taken from Dollinger
-# # 1. Erstellen einer Maske, in der alle Pixel außerhalb eines definierten
-# #    Bildbereichs schwarz, der restliche Bildbereich weiß dargestellt wird
-# # 2. Im originalbild werden die defekten Bildbereiche weiß gefärbt
-# # 3. 'Bildreperatur' der definierten Pixel unter Anwendung von inpaint.inpaint_biharmonic
-#
-#     T_std_mask = T_std.copy()
-#     threshold = [np.mean(T_std) - 3 * np.std(T_std), np.mean(T_std) + 3 * np.std(T_std)]
-#     T_std_mask = np.where(np.bitwise_or(T_std_mask <= threshold[0], T_std_mask >= threshold[1]), 1, 0)
-#     T_std_defect = T_std.copy()
-#
-#     for layer in range(T_std_defect.shape[-1]):
-#         T_std_defect[np.where(T_std_mask == 1)] = 0
-#
-#     T_std_clean = inpaint.inpaint_biharmonic(T_std_defect, T_std_mask, multichannel=False)
-#
-#     return T_std_clean
 if __name__ == "__main__":
     main()
     
