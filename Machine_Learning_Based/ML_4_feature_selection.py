@@ -7,7 +7,7 @@ import joblib
 
 
 # Load your dataset
-df_path = 'D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated two regions/features_glcm_3.csv'
+df_path = 'D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated two regions/features_18_stat.csv'
 df = pd.read_csv(df_path)
 
 # Count the number of zeros in the 'Label' column
@@ -34,13 +34,13 @@ df_zeros = df[df['Label'] == 0]
 df_ones = df[df['Label'] == 1]
 
 # Undersample the majority class
-df_ones_undersampled = resample(df_ones,
+df_zeroes_undersampled = resample(df_zeros,
                                  replace=False,    # sample without replacement
-                                 n_samples=len(df_zeros), # match number in minority class
+                                 n_samples=len(df_ones), # match number in minority class
                                  random_state=42)  # reproducible results
 
 # Combine the minority class with the downsampled majority class
-df = pd.concat([df_ones_undersampled, df_zeros])
+df = pd.concat([df_zeroes_undersampled, df_ones])
 
 # Count the number of zeros in the 'Label' column
 count_zeros = (df['Label'] == 0).sum()
@@ -93,7 +93,7 @@ rf_clf_selected = RandomForestClassifier(n_estimators=100, max_depth=5, min_samp
 rf_clf_selected.fit(X_train_selected, y_train)
 
 # Assuming rf_clf_selected is your trained Random Forest model
-model_filename = 'D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated two regions/features_glcm_3.joblib'
+model_filename = 'D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated two regions/features_18_stat.joblib'
 joblib.dump(rf_clf_selected, model_filename)
 
 

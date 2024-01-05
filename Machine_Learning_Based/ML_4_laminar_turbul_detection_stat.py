@@ -9,20 +9,20 @@ from skimage import exposure
 from scipy.stats import skew, kurtosis
 
 # Paths to your new image file, saved model, and scaler
-new_image_path = "D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/save_images/image_with_trans_line/new_data_set/lbp/validation/"
+new_image_path = "D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/save_images/image_with_trans_line/new_data_set/normalized_stat/validation/"
 # new_image_name = "irdata_0002_0201.npy"
-model_path = "D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated two regions/features_17_stat_lbp.joblib"
+model_path = "D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated two regions/features_18_stat.joblib"
 excel_file = "trans_details.xlsx"
 
 # scaler_path = "D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated two regions/fourier_feature_normalized_scaler_3.joblib"
 
-patch_size_rows = 5
+patch_size_rows = 3
 patch_size_cols = 150
 
 # cropping details: as an example [75:180, 50:200], [crop_starting_row:crop_ending_row, crop_starting_column:crop_ending_column]
 
 crop_starting_row = 100
-crop_ending_row = 200
+crop_ending_row = 175
 crop_starting_column = 100
 crop_ending_column = 250
 
@@ -37,7 +37,7 @@ def main():
     numpy_files = [file for file in all_files if file.endswith('.npy')]
 
     # Limit to the first 400 files
-    numpy_files = numpy_files[:required_vali_images_number]
+    numpy_files = numpy_files[:]
 
     for file_name in numpy_files:
 
@@ -137,17 +137,17 @@ def visualize_regions(image, predictions, patch_size_rows, patch_size_cols, new_
         row_index = df_ground_truth[df_ground_truth['image name'] == new_image_name].index
         # Update the value in the 'detected transitional line' column
 
-        df_ground_truth.at[row_index[0], 'detected transitional line mod_100_200'] = transitional_line_detected+crop_starting_row
+        df_ground_truth.at[row_index[0], 'detected transitional line new mod_100_250'] = transitional_line_detected+crop_starting_row
         # Save the updated DataFrame back to the Excel file
 
         df_ground_truth.to_excel(new_image_path+excel_file, index=False)
 
 
-    plt.imshow(label_image, cmap='jet')  # 'jet' colormap: red for turbulent (1), blue for laminar (0)
-    plt.show()
-
-    plt.imshow(detected_transitional_line_image)
-    plt.show()
+    # plt.imshow(label_image, cmap='jet')  # 'jet' colormap: red for turbulent (1), blue for laminar (0)
+    # plt.show()
+    #
+    # plt.imshow(detected_transitional_line_image)
+    # plt.show()
 
 
 
