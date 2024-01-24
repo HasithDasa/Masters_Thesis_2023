@@ -74,23 +74,9 @@ transitional_mask_1 = process_image(thermal_image_1, rf_model, selected_feature_
 marked_image_1 = mark_transitional_regions(thermal_image_1, transitional_mask_1)
 
 
-##################testing
-
-# Load a new thermal image (npy format)
-new_image_path_2 = 'D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/save_images/irdata_0001_0023.npy'  # Replace with the actual path
-thermal_image_2 = load_image(new_image_path_2)
-
-# Process the image and get transitional regions
-transitional_mask_2 = process_image(thermal_image_2, rf_model, selected_feature_indices=[16, 3, 0, 4, 1, 19, 2, 7, 17, 6, 5, 18, 8, 12])
-
-# Mark the transitional regions on the original image
-marked_image_2 = mark_transitional_regions(thermal_image_2, transitional_mask_2)
-
-
-
 
 # Display the marked image
 cv2.imshow('Transitional Regions_1', marked_image_1)
-cv2.imshow('Transitional Regions_2', marked_image_2)
+
 cv2.waitKey(0)
 cv2.destroyAllWindows()
