@@ -9,9 +9,9 @@ import os
 from scipy.stats import skew, kurtosis
 
 # Paths to your new image file, saved model, and scaler
-new_image_path = "D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/save_images/image_with_trans_line/new_data_set/normal/validation/"
+new_image_path = "D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/save_images/image_with_trans_line/new_data_set/220727/glcm/validation/"
 new_image_name = "irdata_0001_0049.npy"
-model_path = "D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated two regions/svm_classifier_Feature_1_Feature_2.joblib"
+model_path = "D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated two regions/dataset 2/glcm/svm_classifier_Feature_1_Feature_2.joblib"
 # scaler_path = "D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated two regions/fourier_feature_normalized_scaler_3.joblib"
 excel_file = "trans_details.xlsx"
 
@@ -19,8 +19,8 @@ patch_size_rows = 3
 patch_size_cols = 120
 
 
-crop_starting_row = 110
-crop_ending_row = 230
+crop_starting_row = 130
+crop_ending_row = 250
 crop_starting_column = 200
 crop_ending_column = 320
 
@@ -94,7 +94,7 @@ def preprocess_image(image, patch_size_rows, patch_size_cols):
             patch_features = calculate_glcm_features_on_patch(patch)
             # Select only "Feature_1", "Feature_3", and "Feature_4"
             print("patch_features", patch_features)
-            selected_features = np.array([patch_features[0], patch_features[1], patch_features[3]])
+            selected_features = np.array([patch_features[0], patch_features[1], patch_features[2], patch_features[3]])
             # selected_features = np.array([patch_features[1], patch_features[3]])
             features.append(selected_features)
     return np.array(features)
@@ -131,6 +131,9 @@ def visualize_regions(image, predictions, patch_size_rows, patch_size_cols, new_
         if not np.all(label_image[row] == label_image[row - 1]):
             print("transitional_line:", row+crop_starting_row-difference_due_zero_pixel_pos)
             transitional_line_detected = row
+            print("transitional_line_detected", transitional_line_detected)
+            print("crop_starting_row", crop_starting_row)
+            print("difference_due_zero_pixel_pos", difference_due_zero_pixel_pos)
             detected_transitional_line_image[transitional_line_detected, ::20] = 50
             break
 
@@ -146,21 +149,24 @@ def visualize_regions(image, predictions, patch_size_rows, patch_size_cols, new_
 
         # marking the ground truth trans line on image used to show the detected trans line
         detected_transitional_line_image[int(transitional_line) - crop_starting_row, ::1] = 255
+        print("actual trans", int(transitional_line) - crop_starting_row)
 
         # Find the index of the row with the specified image name to update the excel file with newly deteced transitional line
         row_index = df_ground_truth[df_ground_truth['image name'] == new_image_name].index
         # Update the value in the 'detected transitional line' column
 
-        df_ground_truth.at[row_index[0], 'detected transitional line mod old_200_320_SVM'] = transitional_line_detected + crop_starting_row - difference_due_zero_pixel_pos
+        df_ground_truth.at[row_index[0], 'detected transitional line mod 200_320_SVM'] = transitional_line_detected + crop_starting_row - difference_due_zero_pixel_pos
+        # df_ground_truth.at[row_index[0], 'difference transitional line mod 200_320_SVM'] = (int(transitional_line) - crop_starting_row) - transitional_line_detected
+
         # Save the updated DataFrame back to the Excel file
 
         df_ground_truth.to_excel(new_image_path + excel_file, index=False)
 
-    # plt.imshow(label_image, cmap='jet')  # 'jet' colormap: red for turbulent (1), blue for laminar (0)
-    # plt.show()
+    plt.imshow(label_image, cmap='jet')  # 'jet' colormap: red for turbulent (1), blue for laminar (0)
+    plt.show()
     #
-    # plt.imshow(detected_transitional_line_image)
-    # plt.show()
+    plt.imshow(detected_transitional_line_image)
+    plt.show()
 
 if __name__ == "__main__":
     main()

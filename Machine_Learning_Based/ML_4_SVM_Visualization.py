@@ -4,12 +4,12 @@ from sklearn.svm import SVC
 from sklearn.metrics import accuracy_score
 from sklearn.utils import resample
 import joblib
+import matplotlib.pyplot as plt
+import numpy as np
 
 # Load your dataset
-df_path = 'D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated two regions/dataset 1/working statistical/features_18_stat.csv'
+df_path = 'D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated two regions/dataset 2/glcm/features_dataset2_glcm.csv'
 df = pd.read_csv(df_path)
-
-
 
 # Count the number of zeros in the 'Label' column
 count_zeros = (df['Label'] == 0).sum()
@@ -20,7 +20,6 @@ count_ones = (df['Label'] == 1).sum()
 # Print the counts
 print(f"Count of Zeros b4: {count_zeros}")
 print(f"Count of Ones b4: {count_ones}")
-
 
 # # Count the number of ones in each row (excluding the label column)
 # ones_count = (df.drop('Label', axis=1) == 1).sum(axis=1)
@@ -36,9 +35,9 @@ df_ones = df[df['Label'] == 1]
 
 # Undersample the majority class
 df_ones_undersampled = resample(df_ones,
-                                 replace=False,    # sample without replacement
-                                 n_samples=len(df_zeros), # match number in minority class
-                                 random_state=42)  # reproducible results
+                                replace=False,  # sample without replacement
+                                n_samples=len(df_zeros),  # match number in minority class
+                                random_state=42)  # reproducible results
 
 # Combine the minority class with the downsampled majority class
 df = pd.concat([df_ones_undersampled, df_zeros])
@@ -59,13 +58,12 @@ df = df.sample(frac=1, random_state=42).reset_index(drop=True)
 # Define feature combinations
 # feature_combinations = [('Feature_1', 'Feature_4'), ('Feature_1', 'Feature_2'), ('Feature_2', 'Feature_4'), ('Feature_1','Feature_2','Feature_4')]
 # feature_combinations = [('Feature_1', 'Feature_2', 'Feature_3', 'Feature_4')]
-feature_combinations = [('Feature_1', 'Feature_2', 'Feature_4')]
-# feature_combinations = [('Feature_1','Feature_2')]
+feature_combinations = [('Feature_1','Feature_2')]
 
 for features in feature_combinations:
     # Separate features and labels for the specific combination
     X = df[list(features)]  # Select only the columns for the feature combination
-    y = df['Label']         # Labels
+    y = df['Label']  # Labels
 
     # Split the dataset into training and testing sets
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
@@ -109,12 +107,37 @@ for features in feature_combinations:
 
     # Save the best SVM model for each feature combination
     model_filename = f'svm_classifier_{features[0]}_{features[1]}.joblib'
-    path = "D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated two regions/dataset 1/working GLCM/"
-    path_and_name = path+model_filename
+    path = "D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated two regions/dataset 2/glcm/"
+    path_and_name = path + model_filename
     joblib.dump(best_svm_clf, path_and_name)
     print(f"Best SVM model saved as {model_filename}")
     print(f"Best parameters found with features {features}: {grid_search.best_params_}")
 
+    # Create a mesh to plot in
+    x_min, x_max = X.iloc[:10, 0].min() - 1, X.iloc[:10, 0].max() + 1
+    y_min, y_max = X.iloc[:10, 1].min() - 1, X.iloc[:10, 1].max() + 1
+    xx, yy = np.meshgrid(np.arange(x_min, x_max, 0.02),
+                         np.arange(y_min, y_max, 0.02))
+
+    # Plot decision boundary and margins
+    Z = best_svm_clf.predict(np.c_[xx.ravel(), yy.ravel()])
+    Z = Z.reshape(xx.shape)
+    # plt.contourf(xx, yy, Z, alpha=0.2)
+
+    # Plot the first 1000 data points
+    plt.scatter(X.iloc[:10, 0], X.iloc[:10, 1], c=y.iloc[:10], edgecolors='b', s=20)
+    plt.xlabel('Feature 1')
+    plt.ylabel('Feature 2')
+    plt.xlim(xx.min(), xx.max())
+    plt.ylim(yy.min(), yy.max())
+    plt.title('SVM Decision Boundary with Support Vectors')
+
+    # Highlight the support vectors - for visual clarity, only plot those that are within the first 1000 points
+    support_vectors = best_svm_clf.support_vectors_
+    plt.scatter(support_vectors[:, 0], support_vectors[:, 1], s=100,
+                facecolors='none', edgecolors='b', marker='o')
+
+    plt.show()
 
 # #    # Define the parameter grid for hyperparameter tuning
 #     param_grid = {'C': [1], 'gamma': [100], 'kernel': ['rbf']} #60% accuracy

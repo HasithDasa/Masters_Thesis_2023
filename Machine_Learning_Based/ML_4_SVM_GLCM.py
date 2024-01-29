@@ -6,7 +6,7 @@ from sklearn.utils import resample
 import joblib
 
 # Load your dataset
-df_path = 'D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated two regions/dataset 1/working statistical/features_18_stat.csv'
+df_path = 'D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated two regions/dataset 3/glcm/5_160_170.csv'
 df = pd.read_csv(df_path)
 
 
@@ -34,14 +34,27 @@ print(f"Count of Ones b4: {count_ones}")
 df_zeros = df[df['Label'] == 0]
 df_ones = df[df['Label'] == 1]
 
-# Undersample the majority class
-df_ones_undersampled = resample(df_ones,
-                                 replace=False,    # sample without replacement
-                                 n_samples=len(df_zeros), # match number in minority class
-                                 random_state=42)  # reproducible results
 
-# Combine the minority class with the downsampled majority class
-df = pd.concat([df_ones_undersampled, df_zeros])
+
+if (count_ones > count_zeros):
+    # Undersample the majority class
+    df_ones_undersampled = resample(df_ones,
+                                     replace=False,    # sample without replacement
+                                     n_samples=len(df_zeros), # match number in minority class
+                                     random_state=42)  # reproducible results
+
+    # Combine the minority class with the downsampled majority class
+    df = pd.concat([df_ones_undersampled, df_zeros])
+
+elif (count_ones < count_zeros):
+    # Undersample the majority class
+    df_zeros_undersampled = resample(df_zeros,
+                                    replace=False,  # sample without replacement
+                                    n_samples=len(df_ones),  # match number in minority class
+                                    random_state=42)  # reproducible results
+
+    # Combine the minority class with the downsampled majority class
+    df = pd.concat([df_zeros_undersampled, df_ones])
 
 # Count the number of zeros in the 'Label' column
 count_zeros = (df['Label'] == 0).sum()
@@ -58,8 +71,8 @@ df = df.sample(frac=1, random_state=42).reset_index(drop=True)
 
 # Define feature combinations
 # feature_combinations = [('Feature_1', 'Feature_4'), ('Feature_1', 'Feature_2'), ('Feature_2', 'Feature_4'), ('Feature_1','Feature_2','Feature_4')]
-# feature_combinations = [('Feature_1', 'Feature_2', 'Feature_3', 'Feature_4')]
-feature_combinations = [('Feature_1', 'Feature_2', 'Feature_4')]
+feature_combinations = [('Feature_1', 'Feature_2', 'Feature_3', 'Feature_4')]
+# feature_combinations = [('Feature_1', 'Feature_2', 'Feature_4')]
 # feature_combinations = [('Feature_1','Feature_2')]
 
 for features in feature_combinations:
@@ -108,8 +121,8 @@ for features in feature_combinations:
     print(f"Average CV Score with features {features}: {cv_scores.mean():.2f}")
 
     # Save the best SVM model for each feature combination
-    model_filename = f'svm_classifier_{features[0]}_{features[1]}.joblib'
-    path = "D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated two regions/dataset 1/working GLCM/"
+    model_filename = f'160_170_2_svm_classifier_{features[0]}_{features[1]}.joblib'
+    path = "D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated two regions/dataset 3/glcm/"
     path_and_name = path+model_filename
     joblib.dump(best_svm_clf, path_and_name)
     print(f"Best SVM model saved as {model_filename}")

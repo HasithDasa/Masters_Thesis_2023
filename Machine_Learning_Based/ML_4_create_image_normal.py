@@ -31,7 +31,7 @@ import warnings
 
 params = {
 
-    "folder_path": r"D:\Academic\MSc\Thesis\Project files\Project Complete\data\new data\npy",
+    "folder_path": r"D:\Academic\MSc\Thesis\Project files\Project Complete\data\new data\npy\copied_images\New folder\231002_170018",
     "file_name": "irdata_0001_0001.npy",
     "start_x_position": 200,  # Start des Bereiches in dem Transition bestimmt wird
     "stripe_width": 100,  # Breite des Bereiches in dem Transition bestimmt wird
@@ -49,7 +49,7 @@ def main():
     numpy_files = [file for file in all_files if file.endswith('.npy')]
 
     # Limit to the first 400 files
-    numpy_files = numpy_files[400:700]
+    numpy_files = numpy_files[718:800]
 
     # Loop over each NumPy file
     for file_name in numpy_files:
@@ -58,6 +58,7 @@ def main():
 
         file_str = os.path.join(params['folder_path'], params['file_name'])
         img_pre = np.load(file_str)
+        # img_pre = img_pre[:, :450] # cropped due to unwanted parts of the image
         img = preprocess(img_pre, params)
         img = add_noise(img, params=params)
 
@@ -68,7 +69,7 @@ def main():
         params["le"], params["te"] = int(np.min(le)), int(np.max(te))
         ioc = extract_intensity(img, params=params)
         ioc_trans, par_err, ax = locate_transition(ioc, params=params)  # par_err parameter for the error function
-        mu_pos_trans = np.average(ioc_trans) + params["te"]  # without this addition it is reference to the trailing edge
+        mu_pos_trans = np.average(ioc_trans) + params["te"]   # without this addition it is reference to the trailing edge
         std_pos_trans = np.std(ioc_trans)
         CNR = calc_CNR(img, ioc_trans, params=params)
 
@@ -77,6 +78,8 @@ def main():
 
         print("The transition is determined at {} pixels from the top".format(mu_pos_trans))
         print("The transition is determined at {} pixels from the trailing edge".format(np.average(ioc_trans)))
+        print("leading edge {} ".format(params["le"]))
+        print("trailing edge {} ".format(params["te"]))
         print("The standard deviation of the result is {} ".format(std_pos_trans))
         print("The CNR of the image is {} .".format(CNR))
 
@@ -257,11 +260,9 @@ def crop_image_based_on_zeros(img):
     rmin, rmax = np.where(rows)[0][[0, -1]]
     cmin, cmax = np.where(cols)[0][[0, -1]]
 
-    print("rmin", int(params["te"]))
-    print("rmax", int(params["le"]))
-
     # Crop the image
     cropped_img = img[rmin:rmax, :]
+    print("rmin", rmin)
     return cropped_img, rmin
 
 
@@ -276,7 +277,8 @@ def plot_image_and_save(img, pos, pos_from_trailing, title="Image and Transition
     img_save = np.copy(img)
     cropped_img, rmin = crop_image_based_on_zeros(img_save)
 
-    file_path = "D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/save_images/image_with_trans_line/new_data_set/normal/trans_details.xlsx"
+    file_path = "D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/save_images/image_with_trans_line/new_data_set/231002_170018/glcm/validation/trans_details.xlsx"
+    # file_path = "D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/save_images/image_with_trans_line/new_data_set/trans_details.xlsx"
     file_name = params['file_name']
     value = pos_from_trailing
     trailing_edge_pos = pos - pos_from_trailing
@@ -295,8 +297,8 @@ def plot_image_and_save(img, pos, pos_from_trailing, title="Image and Transition
     # Save the DataFrame to the Excel file
     df_data_save.to_excel(file_path, index=False)
 
-    output_dir_files = "D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/save_images/image_with_trans_line/new_data_set/normal/validation"
-    output_dir_masks = "D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/save_images/image_with_trans_line/new_data_set/normal/masks"
+    output_dir_files = "D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/save_images/image_with_trans_line/new_data_set/231002_170018/glcm/validation"
+    output_dir_masks = "D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/save_images/image_with_trans_line/new_data_set/231002_170018/glcm/masks"
 
     output_dir_file_name_npy = os.path.join(output_dir_files, file_name)
 

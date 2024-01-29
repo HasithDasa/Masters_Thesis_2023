@@ -8,13 +8,13 @@ from skimage.feature import local_binary_pattern
 import cv2
 
 # [crop_starting_row:crop_ending_row, crop_starting_column:crop_ending_column]
-crop_starting_row = 100
-crop_ending_row = 175
-crop_starting_column = 200
-crop_ending_column = 320
+crop_starting_row = 75
+crop_ending_row = 135
+crop_starting_column = 180
+crop_ending_column = 190
 
-patch_size_rows = 3
-patch_size_cols = 120
+patch_size_rows = 1
+patch_size_cols = 10
 
 
 def load_image(path):
@@ -69,8 +69,8 @@ def get_matching_mask_path(image_path, mask_dir, mask_name_end):
     return os.path.join(mask_dir, mask_name).replace('\\', '/')
 
 # Directories containing the images and masks
-image_dir = 'D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/save_images/image_with_trans_line/new_data_set/normalized_stat'
-mask_dir = 'D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/save_images/image_with_trans_line/new_data_set/normalized_stat/masks'
+image_dir = "D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/save_images/image_with_trans_line/new_data_set/231002_170018/normalized"
+mask_dir = "D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/save_images/image_with_trans_line/new_data_set/231002_170018/normalized/masks"
 mask_name_end_turb = '_turbul.npy'
 mask_name_end_lami = '_lami.npy'
 
@@ -113,14 +113,17 @@ df = pd.DataFrame(all_features, columns=feature_columns)
 df['Label'] = all_labels
 # Skipping the first row (header)
 df_data = df.iloc[1:]
+
 # # Filter rows
-df_data = df_data[~((df_data['Label'] == 0) & (df_data.drop('Label', axis=1) < 0).any(axis=1))]
-# df_data = df_data[~((df_data['Label'] == 1) & (df_data.drop('Label', axis=1) > 0).any(axis=1))]
-final_df = df_data[~((df_data['Label'] == 1) & (df_data.iloc[:, 0:2] > 0).any(axis=1))]
+# df_data = df_data[~((df_data['Label'] == 0) & (df_data.drop('Label', axis=1) < 0).any(axis=1))]
+# # df_data = df_data[~((df_data['Label'] == 1) & (df_data.drop('Label', axis=1) > 0).any(axis=1))]
+# final_df = df_data[~((df_data['Label'] == 1) & (df_data.iloc[:, 0:2] > 0).any(axis=1))]
+final_df = df_data
+
 
 
 # Assuming 'df' is your DataFram
-save_path = 'D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated two regions/features_18_stat.csv'
+save_path = 'D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated two regions/dataset 3/statistics/new_180_190.csv'
 
 # Save the DataFrame as a CSV file
 final_df.to_csv(save_path, index=False)

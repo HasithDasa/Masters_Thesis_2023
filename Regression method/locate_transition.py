@@ -28,8 +28,8 @@ import warnings
 
 params = {
     
-    "folder_path"       : r"D:\Academic\MSc\Thesis\Project files\Project Complete\data\new data\npy",
-    "file_name"         : "irdata_0001_0001.npy",
+    "folder_path"       : r"D:\Academic\MSc\Thesis\Project files\Project Complete\data\new data\npy\copied_images\New folder\220727",
+    "file_name"         : "irdata_0001_0401.npy",
     "start_x_position"  : 200, # Start des Bereiches in dem Transition bestimmt wird
     "stripe_width"      : 100, # Breite des Bereiches in dem Transition bestimmt wird
     "smooth"            : 0, #If zero then no smoothing is applied
@@ -51,7 +51,8 @@ def main():
     params["le"], params["te"] = int(np.min(le)), int(np.max(te))    
     ioc = extract_intensity(img, params=params)
     ioc_trans, par_err, ax = locate_transition(ioc, params=params)  # par_err parameter for the error function 
-    mu_pos_trans = np.average(ioc_trans) + params["te"] # without this addition it is reference to the trailing edge
+    # mu_pos_trans = np.average(ioc_trans) + params["te"] # without this addition it is reference to the trailing edge
+    mu_pos_trans = params["te"]
     std_pos_trans = np.std(ioc_trans)
     CNR = calc_CNR(img, ioc_trans, params=params)
     

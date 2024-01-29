@@ -8,13 +8,13 @@ from skimage import exposure
 
 
 # [crop_starting_row:crop_ending_row, crop_starting_column:crop_ending_column]
-crop_starting_row = 110
-crop_ending_row = 230
-crop_starting_column = 200
-crop_ending_column = 320
+crop_starting_row = 75
+crop_ending_row = 165
+crop_starting_column = 160
+crop_ending_column = 170
 
 patch_size_rows = 3
-patch_size_cols = 120
+patch_size_cols = 10
 
 
 def load_image(path):
@@ -32,9 +32,6 @@ def load_and_binarize_mask(path):
     mask = mask[crop_starting_row:crop_ending_row, crop_starting_column:crop_ending_column]
     # print("mask:", np.shape(mask))
 
-
-
-
     return mask
 
 # Function to convert image to uint8
@@ -50,7 +47,7 @@ def calculate_glcm_features_on_patch(patch):
     # lbp_patch = lbp_patch.astype(np.uint8)
     # print(np.unique(lbp_patch))
     patch_uint8 = convert_to_uint8(patch)
-    glcm = graycomatrix(patch_uint8, distances=[2], angles=[0, np.pi / 4, np.pi / 2, 3 * np.pi / 4], symmetric=True, normed=True)
+    glcm = graycomatrix(patch_uint8, distances=[0], angles=[0, np.pi / 4, np.pi / 2, 3 * np.pi / 4], symmetric=True, normed=True)
     # contrast = graycoprops(glcm, 'contrast')
     # dissimilarity = graycoprops(glcm, 'dissimilarity')
     # homogeneity = graycoprops(glcm, 'homogeneity')
@@ -97,8 +94,8 @@ def get_matching_mask_path(image_path, mask_dir, mask_name_end):
     return os.path.join(mask_dir, mask_name).replace('\\', '/')
 
 # Directories containing the images and masks
-image_dir = 'D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/save_images/image_with_trans_line/new_data_set/normal'
-mask_dir = 'D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/save_images/image_with_trans_line/new_data_set/normal/masks'
+image_dir = "D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/save_images/image_with_trans_line/new_data_set/231002_170018/glcm"
+mask_dir = "D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/save_images/image_with_trans_line/new_data_set/231002_170018/glcm/masks"
 mask_name_end_turb = '_turbul.npy'
 mask_name_end_lami = '_lami.npy'
 
@@ -158,11 +155,11 @@ df['Label'] = all_labels
 
 
 # Filter rows
-df = df[~((df['Label'] == 0) & (df.drop('Label', axis=1) < 0.1).all(axis=1))]
+df = df[~((df['Label'] == 1) & (df.drop('Label', axis=1) > 0.9).all(axis=1))]
 
 
 # Assuming 'df' is your DataFram
-save_path = 'D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated two regions/features_glcm_3.csv'
+save_path = 'D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated two regions/dataset 3/glcm/5_160_170.csv'
 
 # Save the DataFrame as a CSV file
 df.to_csv(save_path, index=False)
