@@ -3,61 +3,87 @@ import pandas as pd
 import joblib
 import matplotlib.pyplot as plt
 import os
-from skimage.feature import local_binary_pattern, graycomatrix, graycoprops
+import re
 import cv2
 from skimage import exposure
 from scipy.stats import skew, kurtosis
 
 # Paths to your new image file, saved model, and scaler
-new_image_path = "D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/save_images/image_with_trans_line/new_data_set/230920_164712/normalized/validation/"
-# new_image_name = "irdata_0002_0201.npy"
-model_path = "D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated two regions/dataset 4/statistics/svm_classifier_240_250Feature_1_Feature_2.joblib"
-excel_file = "trans_details.xlsx"
+new_image_path = "D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/save_images/image_with_trans_line/new_data_set/231002_170018/glcm/validation/"
+joblib_directory = "D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated two regions/dataset 3/glcm/systematic_error/patch_3_240_360/"
+excel_file = "trans_details_2_SVM.xlsx"
 
-# scaler_path = "D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated two regions/fourier_feature_normalized_scaler_3.joblib"
+df_trans_details = pd.read_excel(new_image_path + excel_file)
 
-patch_size_rows = 1
-patch_size_cols = 10
+crop_starting_row = 90
+crop_ending_row = 150
 
-# cropping details: as an example [75:180, 50:200], [crop_starting_row:crop_ending_row, crop_starting_column:crop_ending_column]
-
-crop_starting_row = 65
-crop_ending_row = 105
-crop_starting_column = 240
-crop_ending_column = 250
+patch_size_rows = 3
+patch_size_cols = 3
 
 required_vali_images_number = 400
+
+def extract_column_values(filename):
+    """
+    Extracts the crop starting and ending column values from the filename.
+    """
+    match = re.search(r"(\d+)_(\d+)", filename)
+    if match:
+        return int(match.group(1)), int(match.group(2))
+    else:
+        return None, None
+
+# def update_excel_file(excel_path, crop_start, crop_end):
+#     """
+#     Update the Excel file with the new crop start and end values.
+#     """
+#     df = pd.read_excel(excel_path)
+#     # Assuming you want to add these as new columns at the end of the Excel file
+#     df['crop_starting_column'] = crop_start
+#     df['crop_ending_column'] = crop_end
+#     df.to_excel(excel_path, index=False)
+
 
 
 def main():
 
-    # List all files in the folder
-    all_files = os.listdir(new_image_path)
+    joblib_files = [f for f in os.listdir(joblib_directory) if f.endswith('.joblib')]
 
-    numpy_files = [file for file in all_files if file.endswith('.npy')]
+    # Extract crop_starting_column and crop_ending_column from model_path
+    for joblib_file in joblib_files:
+        crop_starting_column, crop_ending_column = extract_column_values(joblib_file)
 
-    # Limit to the first 400 files
-    numpy_files = numpy_files[:]
+        # if crop_starting_column is not None and crop_ending_column is not None:
+        #     # Update the Excel file with the extracted values
+        #     update_excel_file(new_image_path + excel_file, crop_starting_column, crop_ending_column)
 
-    for file_name in numpy_files:
+        # List all files in the folder
+        all_files = os.listdir(new_image_path)
 
-        new_image_name = file_name
+        numpy_files = [file for file in all_files if file.endswith('.npy')]
 
-        print("new_image_name", new_image_name)
+        # Limit to the first 400 files
+        numpy_files = numpy_files[:]
 
-        # Load the image and preprocess it
-        image = load_image(new_image_path + new_image_name)
+        for file_name in numpy_files:
 
-        features = preprocess_image(image, patch_size_rows, patch_size_cols)
+            new_image_name = file_name
 
-        # Load the trained model
-        model = joblib.load(model_path)
+            print("new_image_name", new_image_name)
 
-        # Predict the labels
-        predictions = model.predict(features)
+            # Load the image and preprocess it
+            image = load_image(new_image_path + new_image_name)
 
-        # Visualize the predictions
-        visualize_regions(image, predictions, patch_size_rows, patch_size_cols, new_image_name)
+            features = preprocess_image(image, patch_size_rows, patch_size_cols, crop_starting_column, crop_ending_column)
+
+            # Load the trained model
+            model = joblib.load(joblib_directory+joblib_file)
+
+            # Predict the labels
+            predictions = model.predict(features)
+
+            # Visualize the predictions
+            visualize_regions(image, predictions, patch_size_rows, patch_size_cols, new_image_name, crop_starting_column, crop_ending_column)
 
 
 def load_image(path):
@@ -74,7 +100,7 @@ def calculate_statistical_moments(patch):
     return np.array([mean, median])
 
 
-def preprocess_image(image, patch_size_rows, patch_size_cols):
+def preprocess_image(image, patch_size_rows, patch_size_cols, crop_starting_column, crop_ending_column):
     image = image[crop_starting_row:crop_ending_row, crop_starting_column:crop_ending_column]
 
     # plt.imshow(image)
@@ -96,7 +122,7 @@ def preprocess_image(image, patch_size_rows, patch_size_cols):
 #     scaler = joblib.load(scaler_path)
 #     return scaler.transform(features)
 
-def visualize_regions(image, predictions, patch_size_rows, patch_size_cols, new_image_name):
+def visualize_regions(image, predictions, patch_size_rows, patch_size_cols, new_image_name, crop_starting_column, crop_ending_column):
 
     image = image[crop_starting_row:crop_ending_row, crop_starting_column:crop_ending_column]
     height, width = image.shape

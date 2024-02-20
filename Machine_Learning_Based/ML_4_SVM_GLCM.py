@@ -6,7 +6,7 @@ from sklearn.utils import resample
 import joblib
 
 # Load your dataset
-df_path = 'D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated two regions/dataset 3/glcm/5_160_170.csv'
+df_path = 'D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated two regions/dataset 4/glcm/5_240_250.csv'
 df = pd.read_csv(df_path)
 
 
@@ -121,8 +121,8 @@ for features in feature_combinations:
     print(f"Average CV Score with features {features}: {cv_scores.mean():.2f}")
 
     # Save the best SVM model for each feature combination
-    model_filename = f'160_170_2_svm_classifier_{features[0]}_{features[1]}.joblib'
-    path = "D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated two regions/dataset 3/glcm/"
+    model_filename = f'240_250_svm_classifier_{features[0]}_{features[1]}.joblib'
+    path = "D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated two regions/dataset 4/glcm/"
     path_and_name = path+model_filename
     joblib.dump(best_svm_clf, path_and_name)
     print(f"Best SVM model saved as {model_filename}")

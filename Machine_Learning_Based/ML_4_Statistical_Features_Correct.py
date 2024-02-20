@@ -8,10 +8,10 @@ from skimage.feature import local_binary_pattern
 import cv2
 
 # [crop_starting_row:crop_ending_row, crop_starting_column:crop_ending_column]
-crop_starting_row = 75
-crop_ending_row = 135
-crop_starting_column = 180
-crop_ending_column = 190
+crop_starting_row = 65
+crop_ending_row = 105
+crop_starting_column = 240
+crop_ending_column = 250
 
 patch_size_rows = 1
 patch_size_cols = 10
@@ -69,8 +69,8 @@ def get_matching_mask_path(image_path, mask_dir, mask_name_end):
     return os.path.join(mask_dir, mask_name).replace('\\', '/')
 
 # Directories containing the images and masks
-image_dir = "D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/save_images/image_with_trans_line/new_data_set/231002_170018/normalized"
-mask_dir = "D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/save_images/image_with_trans_line/new_data_set/231002_170018/normalized/masks"
+image_dir = "D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/save_images/image_with_trans_line/new_data_set/230920_164712/normalized"
+mask_dir = "D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/save_images/image_with_trans_line/new_data_set/230920_164712/normalized/masks"
 mask_name_end_turb = '_turbul.npy'
 mask_name_end_lami = '_lami.npy'
 
@@ -123,7 +123,7 @@ final_df = df_data
 
 
 # Assuming 'df' is your DataFram
-save_path = 'D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated two regions/dataset 3/statistics/new_180_190.csv'
+save_path = 'D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated two regions/dataset 4/statistics/new_240_250.csv'
 
 # Save the DataFrame as a CSV file
 final_df.to_csv(save_path, index=False)

@@ -8,10 +8,10 @@ from skimage import exposure
 
 
 # [crop_starting_row:crop_ending_row, crop_starting_column:crop_ending_column]
-crop_starting_row = 75
-crop_ending_row = 165
-crop_starting_column = 160
-crop_ending_column = 170
+crop_starting_row = 140
+crop_ending_row = 200
+crop_starting_column = 240
+crop_ending_column = 250
 
 patch_size_rows = 3
 patch_size_cols = 10
@@ -94,8 +94,8 @@ def get_matching_mask_path(image_path, mask_dir, mask_name_end):
     return os.path.join(mask_dir, mask_name).replace('\\', '/')
 
 # Directories containing the images and masks
-image_dir = "D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/save_images/image_with_trans_line/new_data_set/231002_170018/glcm"
-mask_dir = "D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/save_images/image_with_trans_line/new_data_set/231002_170018/glcm/masks"
+image_dir = "D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/save_images/image_with_trans_line/new_data_set/230920_164712/glcm"
+mask_dir = "D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/save_images/image_with_trans_line/new_data_set/230920_164712/glcm/masks"
 mask_name_end_turb = '_turbul.npy'
 mask_name_end_lami = '_lami.npy'
 
@@ -159,7 +159,7 @@ df = df[~((df['Label'] == 1) & (df.drop('Label', axis=1) > 0.9).all(axis=1))]
 
 
 # Assuming 'df' is your DataFram
-save_path = 'D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated two regions/dataset 3/glcm/5_160_170.csv'
+save_path = 'D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated two regions/dataset 4/glcm/5_240_250.csv'
 
 # Save the DataFrame as a CSV file
 df.to_csv(save_path, index=False)

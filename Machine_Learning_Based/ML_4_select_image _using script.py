@@ -34,6 +34,6 @@ def view_and_copy_npy_files(source_folder, destination_folder):
             print("Invalid input. Skipping.")
 
 # Usage
-source_folder = r"D:\Academic\MSc\Thesis\Project files\Project Complete\data\new data\npy\copied_images\New folder\231002_170018"
-destination_folder =r"D:\Academic\MSc\Thesis\Project files\Project Complete\data\new data\npy\copied_images\New folder\231002_170018_selected"
+source_folder = r"D:\Academic\MSc\Thesis\Project files\Project Complete\data\new data\npy\copied_images\New folder\230920_164712\sys error"
+destination_folder =r"D:\Academic\MSc\Thesis\Project files\Project Complete\data\new data\npy\copied_images\New folder\230920_164712\sys error\selected"
 view_and_copy_npy_files(source_folder, destination_folder)

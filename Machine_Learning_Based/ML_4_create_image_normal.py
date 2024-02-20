@@ -31,7 +31,7 @@ import warnings
 
 params = {
 
-    "folder_path": r"D:\Academic\MSc\Thesis\Project files\Project Complete\data\new data\npy\copied_images\New folder\231002_170018",
+    "folder_path": r"D:\Academic\MSc\Thesis\Project files\Project Complete\data\new data\npy\copied_images\New folder\230902\validation",
     "file_name": "irdata_0001_0001.npy",
     "start_x_position": 200,  # Start des Bereiches in dem Transition bestimmt wird
     "stripe_width": 100,  # Breite des Bereiches in dem Transition bestimmt wird
@@ -49,7 +49,7 @@ def main():
     numpy_files = [file for file in all_files if file.endswith('.npy')]
 
     # Limit to the first 400 files
-    numpy_files = numpy_files[718:800]
+    numpy_files = numpy_files[220:]
 
     # Loop over each NumPy file
     for file_name in numpy_files:
@@ -277,7 +277,7 @@ def plot_image_and_save(img, pos, pos_from_trailing, title="Image and Transition
     img_save = np.copy(img)
     cropped_img, rmin = crop_image_based_on_zeros(img_save)
 
-    file_path = "D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/save_images/image_with_trans_line/new_data_set/231002_170018/glcm/validation/trans_details.xlsx"
+    file_path = "D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/save_images/image_with_trans_line/new_data_set/230908/glcm/validation/trans_details.xlsx"
     # file_path = "D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/save_images/image_with_trans_line/new_data_set/trans_details.xlsx"
     file_name = params['file_name']
     value = pos_from_trailing
@@ -297,13 +297,13 @@ def plot_image_and_save(img, pos, pos_from_trailing, title="Image and Transition
     # Save the DataFrame to the Excel file
     df_data_save.to_excel(file_path, index=False)
 
-    output_dir_files = "D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/save_images/image_with_trans_line/new_data_set/231002_170018/glcm/validation"
-    output_dir_masks = "D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/save_images/image_with_trans_line/new_data_set/231002_170018/glcm/masks"
+    output_dir_files = "D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/save_images/image_with_trans_line/new_data_set/230908/glcm/validation"
+    output_dir_masks = "D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/save_images/image_with_trans_line/new_data_set/230908/glcm/masks"
 
     output_dir_file_name_npy = os.path.join(output_dir_files, file_name)
 
     # saving the cropped image important
-    # np.save(output_dir_file_name_npy, cropped_img)
+    np.save(output_dir_file_name_npy, cropped_img)
 
 
     # for masks
