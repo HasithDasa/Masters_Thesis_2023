@@ -32,8 +32,8 @@ My prefered structure is that parameters
 
 params = {
     "canny_min_length"  :  5, 
-    "folder_path"       : r"D:\Academic\MSc\Thesis\Project files\Project Complete\data\new data\npy",
-    "file_name"         : "irdata_0001_0001.npy",
+    "folder_path"       : r"D:\Academic\MSc\Thesis\Project files\Project Complete\data\new data\npy\copied_images\New folder\corotating",
+    "file_name"         : "irdata_0018_0239.npy",
     # "folder_path"       : r"C:\Users\jdi\Documents\Seafile\KleineDaten",
     "min_arc_length"    : 100,
     "noise_std"         : 0, 
@@ -108,7 +108,10 @@ def remove_dead_pixels(img):
     return img_no_dead
 
 def campain_special(img, params=params):
-    img = img[:, 0:400] # The measurement was very close to the tower
+    # img = np.rot90(img, 2)
+    img = np.flipud(img)
+    img = img[:, 0:500] # The measurement was very close to the tower
+
     return img
 
 
@@ -132,6 +135,7 @@ def assign_edges(edges):
     angle = np.arctan(slopes[np.argmin(std_errors)])
     le -= 10 # avoids effects at the edges of rotor blade
     te += 15
+
     return le, te, np.rad2deg(angle) 
 
 def find_edges(img):
@@ -169,6 +173,8 @@ def find_edges(img):
     edge1 = np.mean(edge1, axis = 0)
     edge2 = np.mean(edge2, axis = 0)
     edges = np.stack((edge1, edge2), axis= 0)
+
+    # print("edges", edges)
     return edges
 
 
@@ -251,6 +257,12 @@ def rotate_and_crop(image, angle):
     wr, hr = rotatedRectWithMaxArea(image.shape[1], image.shape[0], np.deg2rad(angle))
     h_offset = int((rotated_image.shape[0] - hr) /2)
     w_offset = int((rotated_image.shape[1] - wr) /2)
+
+    print("h_offset:", h_offset)
+    print("h_offset_:", h_offset+int(hr))
+    print("w_offset:", w_offset)
+    print("w_offset:", w_offset+int(wr))
+
     cropped_rotated_image = rotated_image[h_offset:h_offset+int(hr), w_offset:w_offset+int(wr)]
     
     ## make sure that there are borders in y direction
@@ -317,7 +329,7 @@ def plot_np_image(img, title="Figure X"):
     """ This function plots an numpy image with title image """
     
     fig, ax = plt.subplots()
-    im = ax.imshow(img, cmap='gray', vmin=290, vmax=305)
+    im = ax.imshow(img, cmap='gray', vmin=240, vmax=290)
     fig.suptitle(title + ", created: {}".format(datetime.now().strftime("%H:%M:%S")))
     ax.set_xlabel("x position on rotor blade")
     ax.set_ylabel("y position on rotor blade")

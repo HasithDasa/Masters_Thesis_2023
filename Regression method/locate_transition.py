@@ -28,8 +28,8 @@ import warnings
 
 params = {
     
-    "folder_path"       : r"D:\Academic\MSc\Thesis\Project files\Project Complete\data\new data\npy\copied_images\New folder\220727",
-    "file_name"         : "irdata_0001_0401.npy",
+    "folder_path"       : r"D:\Academic\MSc\Thesis\Project files\Project Complete\data\new data\npy\copied_images\New folder\corotating",
+    "file_name"         : "irdata_0021_0440.npy",
     "start_x_position"  : 200, # Start des Bereiches in dem Transition bestimmt wird
     "stripe_width"      : 100, # Breite des Bereiches in dem Transition bestimmt wird
     "smooth"            : 0, #If zero then no smoothing is applied
@@ -51,8 +51,8 @@ def main():
     params["le"], params["te"] = int(np.min(le)), int(np.max(te))    
     ioc = extract_intensity(img, params=params)
     ioc_trans, par_err, ax = locate_transition(ioc, params=params)  # par_err parameter for the error function 
-    # mu_pos_trans = np.average(ioc_trans) + params["te"] # without this addition it is reference to the trailing edge
-    mu_pos_trans = params["te"]
+    mu_pos_trans = np.average(ioc_trans) + params["te"] # without this addition it is reference to the trailing edge
+    # mu_pos_trans = params["te"]
     std_pos_trans = np.std(ioc_trans)
     CNR = calc_CNR(img, ioc_trans, params=params)
     
@@ -61,6 +61,7 @@ def main():
     
     
     print("The transition is determined at {} pixels from the top".format(mu_pos_trans))
+    print("The transition is determined at {} pixels from the trailing edge".format(np.average(ioc_trans)))
     print("The standard deviation of the result is {} ".format(std_pos_trans))
     print("The CNR of the image is {} .".format(CNR))
     
@@ -77,17 +78,17 @@ def locate_transition(ioc, params=params):
     If smooth is zero, the original ioc remains unchanged."""
     ioc = gaussian_filter(ioc, params["smooth"]) if params["smooth"] else ioc
     
-    # Calculate gradient of intensity
-    try:
-        ioc_grad = np.gradient(f=ioc, axis=1)
-    except:
-        sys.exit()
+    # # Calculate gradient of intensity
+    # try:
+    #     ioc_grad = np.gradient(f=ioc, axis=1)
+    # except:
+    #     sys.exit()
     
     # Plot the function that is used for analysis
     if params["loc_method"] == "intensity":
         fig, ax = plot_int_chord(ioc[-1, :], title="The intensity of last column over chord length")
-    else: 
-        fig, ax = plot_int_chord(ioc_grad[-1, :], title="The intensity gradient of last column over chord length")
+    # else:
+    #     fig, ax = plot_int_chord(ioc_grad[-1, :], title="The intensity gradient of last column over chord length")
 
     # We are plotting to a curve
     # independent variable: position on chord
@@ -97,7 +98,7 @@ def locate_transition(ioc, params=params):
     par_err = np.zeros(shape=(st, 4)) # parameters of the error function
     xdata = np.arange(ioc.shape[1]) # Chord length
     start = int(0.7 * (params["le"] - params["te"]))
-    for i, (int_col, grad_col) in enumerate(zip(ioc, ioc_grad)):  
+    for i, (int_col, grad_col) in enumerate(zip(ioc, ioc)):  # I changed here because ioc_grad can't be calculated in some cases "(ioc, ioc_grad)"
         try:
             bounds= ((0, 0, 0, int(np.min(int_col))), (10, int(int_col.shape[0]), 25, np.ceil(np.max(int_col))))
             if params["loc_method"] == "intensity":

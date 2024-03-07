@@ -10,17 +10,17 @@ import re
 from scipy.stats import skew, kurtosis
 
 # Paths to your new image file, saved model, and scaler
-new_image_path = "D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/save_images/image_with_trans_line/new_data_set/230908/glcm/validation/"
-joblib_directory = "D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated two regions/dataset 1/glcm/systematic_error/patch_3_260_340/"
-excel_file = "trans_details_2_SVM.xlsx"
+new_image_path = "D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/save_images/image_with_trans_line/new_data_set/corotating_231207/glcm/validation/"
+joblib_directory = "D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated two regions/corotating_231207/glcm/systematic_error/patch_10_200_290/"
+excel_file = "trans_details.xlsx"
 
 df_trans_details = pd.read_excel(new_image_path + excel_file)
 
-crop_starting_row = 135
-crop_ending_row = 195
+crop_starting_row = 290
+crop_ending_row = 380
 
 patch_size_rows = 3
-patch_size_cols = 3
+patch_size_cols = 10
 
 
 def extract_column_values(filename):

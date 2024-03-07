@@ -7,16 +7,16 @@ import matplotlib.pyplot as plt
 from skimage import exposure
 
 # Initial crop values (will be updated in the loop)
-crop_starting_row = 135
-crop_ending_row = 195
+crop_starting_row = 90
+crop_ending_row = 150
 # crop_starting_column and crop_ending_column will be set in the loop
 
 patch_size_rows = 3
-patch_size_cols = 3
+patch_size_cols = 10
 
 # Define the complete range for columns
-complete_start_column = 260
-complete_end_column = 341
+complete_start_column = 200
+complete_end_column = 290
 
 def load_image(path):
     return np.load(path)
@@ -64,8 +64,8 @@ def get_matching_mask_path(image_path, mask_dir, mask_name_end):
     mask_name = base_name.replace('.npy', mask_name_end)
     return os.path.join(mask_dir, mask_name).replace('\\', '/')
 
-image_dir = "D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/save_images/image_with_trans_line/new_data_set/230908/glcm"
-mask_dir = "D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/save_images/image_with_trans_line/new_data_set/230908/glcm/masks"
+image_dir = "D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/save_images/image_with_trans_line/new_data_set/231002_170018/glcm"
+mask_dir = "D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/save_images/image_with_trans_line/new_data_set/231002_170018/glcm/masks"
 mask_name_end_turb = '_turbul.npy'
 mask_name_end_lami = '_lami.npy'
 
@@ -106,5 +106,5 @@ for start_col in range(complete_start_column, complete_end_column, patch_size_co
 
     df = df[~((df['Label'] == 1) & (df.drop('Label', axis=1) > 0.9).all(axis=1))]
 
-    save_path = f'D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated two regions/dataset 1/glcm/systematic_error/Sys_error_{crop_starting_column}_{crop_ending_column}.csv'
+    save_path = f'D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated two regions/dataset 3/glcm/systematic_error/patch_10_200_290/Sys_error_{crop_starting_column}_{crop_ending_column}.csv'
     df.to_csv(save_path, index=False)

@@ -7,9 +7,9 @@ from sklearn.utils import resample
 import joblib
 
 # Directory containing the CSV files
-data_dir = 'D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated two regions/dataset 3/statistics/systematic_error/patch_10_240_360'
+data_dir = 'D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated two regions/dataset 1/statistics/systematic_error/patch_3_200_290'
 model_save_dir = data_dir
-excel_file_path = 'D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated two regions/dataset 3/statistics/systematic_error/patch_10_240_360/results.xlsx'
+excel_file_path = 'D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated two regions/dataset 1/statistics/systematic_error/patch_3_200_290/results.xlsx'
 
 # Initialize a DataFrame to store results
 results_df = pd.DataFrame(columns=['CSV File', 'Train Accuracy', 'Test Accuracy', 'Best Parameters'])

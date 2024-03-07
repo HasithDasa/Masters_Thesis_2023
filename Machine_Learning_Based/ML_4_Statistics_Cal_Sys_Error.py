@@ -8,16 +8,16 @@ from skimage.feature import local_binary_pattern
 import cv2
 
 # Initial crop values (will be updated in the loop)
-crop_starting_row = 90
-crop_ending_row = 150
+crop_starting_row = 105
+crop_ending_row = 165
 # crop_starting_column and crop_ending_column will be set in the loop
 
 patch_size_rows = 3
-patch_size_cols = 30
+patch_size_cols = 3
 
 # Define the complete range for columns
-complete_start_column = 240
-complete_end_column = 360
+complete_start_column = 200
+complete_end_column = 290
 
 def load_image(path):
     return np.load(path)
@@ -71,8 +71,8 @@ def get_matching_mask_path(image_path, mask_dir, mask_name_end):
     return os.path.join(mask_dir, mask_name).replace('\\', '/')
 
 # Directories containing the images and masks
-image_dir = "D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/save_images/image_with_trans_line/new_data_set/230920_164712/normalized"
-mask_dir = "D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/save_images/image_with_trans_line/new_data_set/230920_164712/normalized/masks"
+image_dir = "D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/save_images/image_with_trans_line/new_data_set/230908/statistics"
+mask_dir = "D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/save_images/image_with_trans_line/new_data_set/230908/statistics/masks"
 mask_name_end_turb = '_turbul.npy'
 mask_name_end_lami = '_lami.npy'
 
@@ -129,7 +129,7 @@ for start_col in range(complete_start_column, complete_end_column, patch_size_co
 
 
     # Assuming 'df' is your DataFram
-    save_path = f'D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated two regions/dataset 4/statistics/systematic_error/Sys_error_{crop_starting_column}_{crop_ending_column}.csv'
+    save_path = f'D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated two regions/dataset 1/statistics/systematic_error/patch_3_200_290/Sys_error_{crop_starting_column}_{crop_ending_column}.csv'
 
     # Save the DataFrame as a CSV file
     final_df.to_csv(save_path, index=False)

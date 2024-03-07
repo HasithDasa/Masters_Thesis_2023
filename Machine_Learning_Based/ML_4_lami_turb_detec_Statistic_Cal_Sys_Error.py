@@ -9,14 +9,14 @@ from skimage import exposure
 from scipy.stats import skew, kurtosis
 
 # Paths to your new image file, saved model, and scaler
-new_image_path = "D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/save_images/image_with_trans_line/new_data_set/231002_170018/glcm/validation/"
-joblib_directory = "D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated two regions/dataset 3/glcm/systematic_error/patch_3_240_360/"
-excel_file = "trans_details_2_SVM.xlsx"
+new_image_path = "D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/save_images/image_with_trans_line/new_data_set/231002_170018/statistics/validation/"
+joblib_directory = "D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated two regions/dataset 3/statistics/systematic_error/patch_3_200_290/"
+excel_file = "trans_details.xlsx"
 
 df_trans_details = pd.read_excel(new_image_path + excel_file)
 
-crop_starting_row = 90
-crop_ending_row = 150
+crop_starting_row = 75
+crop_ending_row = 125
 
 patch_size_rows = 3
 patch_size_cols = 3
@@ -144,7 +144,7 @@ def visualize_regions(image, predictions, patch_size_rows, patch_size_cols, new_
             print("transitional_line:", row+crop_starting_row)
             transitional_line_detected = row
             detected_transitional_line_image[transitional_line_detected, ::20] = 50
-
+            break
 
     # Check if the image name exists in the 'image name' column of ground truth data excel
 
@@ -163,7 +163,7 @@ def visualize_regions(image, predictions, patch_size_rows, patch_size_cols, new_
         row_index = df_ground_truth[df_ground_truth['image name'] == new_image_name].index
         # Update the value in the 'detected transitional line' column
 
-        df_ground_truth.at[row_index[0], 'det trans line 240_250_patch_1'] = transitional_line_detected+crop_starting_row
+        df_ground_truth.at[row_index[0], f'{crop_starting_column}_{crop_ending_column}'] = transitional_line_detected+crop_starting_row
         # Save the updated DataFrame back to the Excel file
 
         df_ground_truth.to_excel(new_image_path+excel_file, index=False)

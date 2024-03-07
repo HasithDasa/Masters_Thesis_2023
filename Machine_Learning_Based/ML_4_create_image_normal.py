@@ -31,7 +31,7 @@ import warnings
 
 params = {
 
-    "folder_path": r"D:\Academic\MSc\Thesis\Project files\Project Complete\data\new data\npy\copied_images\New folder\230902\validation",
+    "folder_path": r"D:\Academic\MSc\Thesis\Project files\Project Complete\data\new data\npy\copied_images\New folder\corotating\validation",
     "file_name": "irdata_0001_0001.npy",
     "start_x_position": 200,  # Start des Bereiches in dem Transition bestimmt wird
     "stripe_width": 100,  # Breite des Bereiches in dem Transition bestimmt wird
@@ -49,7 +49,7 @@ def main():
     numpy_files = [file for file in all_files if file.endswith('.npy')]
 
     # Limit to the first 400 files
-    numpy_files = numpy_files[220:]
+    numpy_files = numpy_files[:]
 
     # Loop over each NumPy file
     for file_name in numpy_files:
@@ -96,17 +96,17 @@ def locate_transition(ioc, params=params):
     If smooth is zero, the original ioc remains unchanged."""
     ioc = gaussian_filter(ioc, params["smooth"]) if params["smooth"] else ioc
 
-    # Calculate gradient of intensity
-    try:
-        ioc_grad = np.gradient(f=ioc, axis=1)
-    except:
-        sys.exit()
+    # # Calculate gradient of intensity
+    # try:
+    #     ioc_grad = np.gradient(f=ioc, axis=1)
+    # except:
+    #     # sys.exit()
 
     # Plot the function that is used for analysis
     if params["loc_method"] == "intensity":
         fig, ax = plot_int_chord(ioc[-1, :], title="The intensity of last column over chord length")
-    else:
-        fig, ax = plot_int_chord(ioc_grad[-1, :], title="The intensity gradient of last column over chord length")
+    # else:
+    #     fig, ax = plot_int_chord(ioc_grad[-1, :], title="The intensity gradient of last column over chord length")
 
     # We are plotting to a curve
     # independent variable: position on chord
@@ -116,7 +116,7 @@ def locate_transition(ioc, params=params):
     par_err = np.zeros(shape=(st, 4))  # parameters of the error function
     xdata = np.arange(ioc.shape[1])  # Chord length
     start = int(0.7 * (params["le"] - params["te"]))
-    for i, (int_col, grad_col) in enumerate(zip(ioc, ioc_grad)):
+    for i, (int_col, grad_col) in enumerate(zip(ioc, ioc)): # I changed here because ioc_grad can't be calculated in some cases "(ioc, ioc_grad)"
         try:
             bounds = ((0, 0, 0, int(np.min(int_col))), (10, int(int_col.shape[0]), 25, np.ceil(np.max(int_col))))
             if params["loc_method"] == "intensity":
@@ -277,7 +277,7 @@ def plot_image_and_save(img, pos, pos_from_trailing, title="Image and Transition
     img_save = np.copy(img)
     cropped_img, rmin = crop_image_based_on_zeros(img_save)
 
-    file_path = "D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/save_images/image_with_trans_line/new_data_set/230908/glcm/validation/trans_details.xlsx"
+    file_path = "D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/save_images/image_with_trans_line/new_data_set/corotating_231207/glcm/validation/trans_details.xlsx"
     # file_path = "D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/save_images/image_with_trans_line/new_data_set/trans_details.xlsx"
     file_name = params['file_name']
     value = pos_from_trailing
@@ -297,8 +297,8 @@ def plot_image_and_save(img, pos, pos_from_trailing, title="Image and Transition
     # Save the DataFrame to the Excel file
     df_data_save.to_excel(file_path, index=False)
 
-    output_dir_files = "D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/save_images/image_with_trans_line/new_data_set/230908/glcm/validation"
-    output_dir_masks = "D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/save_images/image_with_trans_line/new_data_set/230908/glcm/masks"
+    output_dir_files = "D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/save_images/image_with_trans_line/new_data_set/corotating_231207/glcm/validation"
+    output_dir_masks = "D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/save_images/image_with_trans_line/new_data_set/corotating_231207/glcm/validation/masks"
 
     output_dir_file_name_npy = os.path.join(output_dir_files, file_name)
 
@@ -334,8 +334,8 @@ def plot_image_and_save(img, pos, pos_from_trailing, title="Image and Transition
 
 
     #comment this when making validation data
-    # np.save(output_dir_file_name_mask_turb_npy, cropped_mask_turb)
-    # np.save(output_dir_file_name_mask_lami_npy, cropped_mask_lami)
+    np.save(output_dir_file_name_mask_turb_npy, cropped_mask_turb)
+    np.save(output_dir_file_name_mask_lami_npy, cropped_mask_lami)
 
     plt.imshow(cropped_mask_turb)
     # plt.show()

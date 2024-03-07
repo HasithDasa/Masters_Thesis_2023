@@ -34,9 +34,9 @@ def grid_search_dbscan(X, y_true, eps_values, min_samples_values):
 
 
 # Directories for data and model saving
-data_dir = 'D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated two regions/dataset 4/glcm/systematic_error/Unsupervised_DBSCAN/patch_5'
+data_dir = 'D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated two regions/dataset 3/glcm/systematic_error/Unsupervised_DBSCAN/patch_10_200_290'
 model_save_dir = data_dir  # Update this path as needed for saving models
-results_file_path = 'D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated two regions/dataset 4/glcm/systematic_error/Unsupervised_DBSCAN/patch_5/dbscan_grid_search_results.xlsx'
+results_file_path = 'D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated two regions/dataset 3/glcm/systematic_error/Unsupervised_DBSCAN/patch_10_200_290/dbscan_grid_search_results.xlsx'
 
 # Define ranges for eps and min_samples for grid search
 eps_values = np.arange(0.1, 1.0, 0.1)

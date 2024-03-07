@@ -148,6 +148,8 @@ def remove_dead_pixels(img):
 
 def campain_special(img, params=params):
     img = img[:, 0:400] # The measurement was very close to the tower
+    # img = np.flipud(img)
+    # img = img[:, 0:500] # The measurement was very close to the tower
     return img
 
 
@@ -321,7 +323,7 @@ def plot_histogram(img):
     ax.set_xlabel('Value')
     ax.set_ylabel('Frequency')
     ax.set_title('Histogram' + ", created: {}".format(datetime.now().strftime("%H:%M:%S")))
-    plt.show()
+    # plt.show()
     return hist, bin_edges
   
 def find_contours(img):
@@ -352,7 +354,7 @@ def plot_np_image(img, title="Figure X"):
     cbar.ax.set_ylabel('Colorbar Label', fontsize=12)
     cbar.ax.tick_params(labelsize=10)  
     
-    plt.show()
+    # plt.show()
     return fig, ax
 
 def plot_np_image_with_contours(img, contours, title="with contours"):
@@ -372,7 +374,7 @@ def plot_np_image_with_contours(img, contours, title="with contours"):
     # Customize the colorbar
     cbar.ax.set_ylabel('Colorbar Label', fontsize=12)
     cbar.ax.tick_params(labelsize=10)
-    plt.show()
+    # plt.show()
 
     return fig, ax
 
@@ -396,7 +398,7 @@ def plot_np_image_with_edges(img, edges, title="with edges"):
     # Customize the colorbar
     cbar.ax.set_ylabel('Colorbar Label', fontsize=12)
     cbar.ax.tick_params(labelsize=10)
-    plt.show()
+    # plt.show()
 
     return fig, ax
     
