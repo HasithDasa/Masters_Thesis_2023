@@ -9,17 +9,17 @@ from skimage import exposure
 from scipy.stats import skew, kurtosis
 
 # Paths to your new image file, saved model, and scaler
-new_image_path = "D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/save_images/image_with_trans_line/new_data_set/231002_170018/statistics/validation/"
-joblib_directory = "D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated two regions/dataset 3/statistics/systematic_error/patch_3_200_290/"
+new_image_path = "D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/save_images/image_with_trans_line/new_data_set/corotating_231207/glcm/validation/Validation old/statistics/"
+joblib_directory = "D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated two regions/dataset 4/statistics/systematic_error/patch_10_200_290/"
 excel_file = "trans_details.xlsx"
 
 df_trans_details = pd.read_excel(new_image_path + excel_file)
 
-crop_starting_row = 75
-crop_ending_row = 125
+crop_starting_row = 1
+crop_ending_row = 61
 
 patch_size_rows = 3
-patch_size_cols = 3
+patch_size_cols = 10
 
 required_vali_images_number = 400
 

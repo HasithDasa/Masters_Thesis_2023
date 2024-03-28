@@ -12,14 +12,14 @@ from collections import Counter
 
 
 # Paths to your new image file and scaler
-new_image_path = "D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/save_images/image_with_trans_line/new_data_set/231002_170018/glcm/validation/"
+new_image_path = "D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/save_images/image_with_trans_line/new_data_set/corotating_231207/glcm/validation/Validation old/GLCM/"
 joblib_directory = "D:/Academic/MSc/Thesis/Project files/Project Complete/data/new data/annotated two regions/dataset 3/glcm/systematic_error/Unsupervised_DBSCAN/patch_10_200_290/selected"
-excel_file = "trans_details_2_DBSCAN_last.xlsx"
+excel_file = "trans_details DBSCAN Day3.xlsx"
 
 df_trans_details = pd.read_excel(new_image_path + excel_file)
 
-crop_starting_row = 90
-crop_ending_row = 150
+crop_starting_row = 25
+crop_ending_row = 75
 
 patch_size_rows = 3
 patch_size_cols = 10

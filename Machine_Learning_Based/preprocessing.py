@@ -147,9 +147,9 @@ def remove_dead_pixels(img):
     return img_no_dead
 
 def campain_special(img, params=params):
-    img = img[:, 0:400] # The measurement was very close to the tower
-    # img = np.flipud(img)
-    # img = img[:, 0:500] # The measurement was very close to the tower
+    # img = img[:, 0:400] # The measurement was very close to the tower
+    img = np.flipud(img)
+    img = img[:, 0:500] # The measurement was very close to the tower
     return img
 
 
